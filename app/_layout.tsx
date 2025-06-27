@@ -1,11 +1,12 @@
-import { Stack } from "expo-router";
+// app/_layout.tsx
+import { Slot } from 'expo-router';
+import React from 'react';
+import { UserRoleProvider } from '../context/UserRoleContext';
 
-export default function RootLayout() {
+export default function Layout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,  // Versteckt den Header komplett
-      }}
-    />
+    <UserRoleProvider>
+      <Slot />
+    </UserRoleProvider>
   );
 }

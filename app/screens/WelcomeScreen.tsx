@@ -1,9 +1,18 @@
-import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function HomeScreen() {
+type RootStackParamList = {
+  WelcomeScreen: undefined;
+  LoginScreen: undefined;
+  // add other screens here as needed
+};
+
+export default function WelcomeScreen() {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'WelcomeScreen'>>();
+
   const handleGetStarted = () => {
-    console.log('Get Started pressed');
+    navigation.navigate('LoginScreen'); // oder 'Main', je nachdem was dein Ziel ist
   };
 
   return (
