@@ -8,9 +8,10 @@ import { useUserRole } from '../../context/UserRoleContext';
 import { dummyListings } from '../../data/dummyData';
 
 export default function HomeScreen() {
-  const { userRole } = useUserRole();
+  const { role, setRole } = useUserRole();
   const [query, setQuery] = React.useState('');
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
+  console.log('Aktueller userRole:', role);
 
   const filteredListings = dummyListings.filter((item) => {
     const matchQuery = item.title.toLowerCase().includes(query.toLowerCase());
@@ -30,7 +31,7 @@ export default function HomeScreen() {
           )
         }
       />
-      {userRole === 'sitter' && (
+      {role === 'sitter' && (
         <>
           <Text style={{ fontSize: 18, marginVertical: 12 }}>Aktuelle Inserate</Text>
           {filteredListings.map((listing) => (
@@ -38,7 +39,7 @@ export default function HomeScreen() {
           ))}
         </>
       )}
-      {userRole === 'owner' && (
+      {role === 'owner' && (
         <Text>Du bist als Besitzer eingeloggt – Sitterliste kommt hier hin.</Text>
       )}
     </ScrollView>
