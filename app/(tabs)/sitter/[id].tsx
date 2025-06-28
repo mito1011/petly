@@ -1,4 +1,5 @@
 // 📁 app/sitter/[id].tsx
+import RatingBar from '@/components/RatinBar';
 import { dummyCaretakers } from '@/data/dummyCaretakers';
 import { useLocalSearchParams } from 'expo-router';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -51,6 +52,8 @@ export default function SitterProfile() {
           <View key={type} style={styles.tag}><Text style={styles.tagText}>{type}</Text></View>
         ))}
       </View>
+
+      <RatingBar ratingBreakdown={sitter.ratingBreakdown} />
 
       <Text style={styles.sectionTitle}>Reviews</Text>
       {sitter.reviewsDetail.length > 0 ? sitter.reviewsDetail.map((review) => (
