@@ -17,7 +17,7 @@ export default function LoginScreen() {
     }
 
     // ➡️ Navigation zum Home Tab
-    router.replace('/(tabs)/home');
+    router.replace('/(tabs)/Home');
   };
 
   return (

@@ -1,37 +1,62 @@
-// 📁 app/(tabs)/messages.tsx
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+// 📁 app/(tabs)/Messages.tsx
+import { dummyApplications } from '@/data/dummyApplications';
+import { useRouter } from 'expo-router';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const messages = [
-  { id: '1', title: 'Bewerbung auf Bella', status: 'Pending' },
-  { id: '2', title: 'Direktbuchung Max', status: 'Accepted' },
-];
+export default function Messages() {
+  const router = useRouter();
+  const pending = dummyApplications.filter(app => app.status === 'pending');
+  const accepted = dummyApplications.filter(app => app.status === 'accepted');
 
-export default function MessagesScreen() {
+  const renderApp = (app) => (
+    <TouchableOpacity
+      key={app.id}
+      style={styles.row}
+      onPress={() => router.push(`/application/${app.id}`)}
+    >
+      <Image source={{ uri: app.avatar }} style={styles.avatar} />
+      <View>
+        <Text style={styles.name}>{app.name}</Text>
+        <Text style={styles.meta}>{app.service} · {app.date}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Nachrichten & Bewerbungen</Text>
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.message}>
-            <Text style={styles.messageText}>{item.title}</Text>
-            <Text style={styles.status}>{item.status}</Text>
-          </View>
-        )}
-      />
-    </View>
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
+      <Text style={styles.sectionTitle}>Pending</Text>
+      {pending.map(renderApp)}
+
+      <Text style={styles.sectionTitle}>Accepted</Text>
+      {accepted.map(renderApp)}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  message: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  sectionTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: 20,
+    marginBottom: 10,
   },
-  messageText: { fontSize: 16 },
-  status: { fontSize: 14, color: 'gray' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
+  },
+  name: {
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  meta: {
+    color: '#888',
+    fontSize: 13,
+  },
 });

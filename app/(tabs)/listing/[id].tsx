@@ -2,7 +2,7 @@
 import { dummyListings } from '@/data/dummyData';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ListingDetails() {
   const router = useRouter();
@@ -57,7 +57,9 @@ export default function ListingDetails() {
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button title="Book Now" onPress={() => {}} color="#1E9E62" />
+        <Pressable style={[styles.button, styles.accept]}>
+                  <Text style={styles.buttonText}>Book Now</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -138,16 +140,29 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 30,
+  }, 
+    button: {
+    flex: 1,
+    padding: 12,
+    marginHorizontal: 6,
+    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: '#1E9E62'
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   row: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  marginVertical: 8,
-},
-separator: {
-  height: 1,
-  backgroundColor: '#ddd',
-  marginVertical: 4,
-},
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginVertical: 8,
+    paddingHorizontal: 8,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 4,
+  },
 });
