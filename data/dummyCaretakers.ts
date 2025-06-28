@@ -61,7 +61,28 @@ export const dummyCaretakers = [
     experience: 'Cat Caregiver',
     experienceSince: '2020',
     about: 'Feline specialist with a cozy home. I ensure your cats are fed, safe and happy.',
-    reviewsDetail: [],
+    reviewsDetail: [
+      {
+        id: 'r3',
+        name: 'Laura Bennett',
+        date: '1 month ago',
+        rating: 5,
+        comment: 'Carla was so sweet with my shy cat! I felt really safe leaving her with Carla.',
+        likes: 5,
+        replies: 0,
+        avatar: 'https://randomuser.me/api/portraits/women/12.jpg'
+      },
+      {
+        id: 'r4',
+        name: 'Michael Ross',
+        date: '2 months ago',
+        rating: 4,
+        comment: 'Very responsible sitter. Took good care of my two cats while I was away.',
+        likes: 4,
+        replies: 0,
+        avatar: 'https://randomuser.me/api/portraits/men/13.jpg'
+      }
+    ],
     ratingBreakdown: {
       5: 85,
       4: 10,
@@ -86,7 +107,28 @@ export const dummyCaretakers = [
     experience: 'Multi-Pet Specialist',
     experienceSince: '2019',
     about: 'Providing care for all types of small pets. Personalized and attentive service.',
-    reviewsDetail: [],
+    reviewsDetail: [
+      {
+        id: 'r5',
+        name: 'Samantha Green',
+        date: '3 weeks ago',
+        rating: 5,
+        comment: 'Max really knows how to care for small pets. My rabbit came home stress-free!',
+        likes: 6,
+        replies: 0,
+        avatar: 'https://randomuser.me/api/portraits/women/16.jpg'
+      },
+      {
+        id: 'r6',
+        name: 'Peter Walsh',
+        date: '2 months ago',
+        rating: 4,
+        comment: 'Good service, and my hamster was happy. Would recommend Max to other pet owners.',
+        likes: 3,
+        replies: 0,
+        avatar: 'https://randomuser.me/api/portraits/men/17.jpg'
+      }
+    ],
     ratingBreakdown: {
       5: 80,
       4: 10,
