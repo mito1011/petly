@@ -1,9 +1,11 @@
 // app/listing/[id].tsx
 import { dummyListings } from '@/data/dummyData';
-import { useLocalSearchParams } from 'expo-router';
-import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ListingDetails() {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const listing = dummyListings.find((item) => item.id === id);
 
@@ -13,20 +15,43 @@ export default function ListingDetails() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: listing.image }} style={styles.image} />
-      <View style={styles.section}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#1E5128" />
+        </TouchableOpacity>
         <Text style={styles.title}>{listing.title}</Text>
+      </View>
+
+      <Image source={{ uri: listing.image }} style={styles.image} />
+      
+      <View style={styles.section}>
+        <Text style={styles.about}>About {listing.title}</Text>
         <Text style={styles.description}>{listing.about}</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Care Requirements</Text>
-        <View style={styles.grid}>
+
+        <View style={styles.separator} />
+
+        <View style={styles.row}>
           <Info label="Breed" value={listing.breed} />
           <Info label="Age" value={listing.age} />
+        </View>
+        <View style={styles.separator} />
+
+        <View style={styles.row}>
           <Info label="Size" value={listing.size} />
+        </View>
+        <View style={styles.separator} />
+
+        <View style={styles.row}>
           <Info label="Exercise" value={listing.exercise} />
           <Info label="Feeding" value={listing.feeding} />
+        </View>
+        <View style={styles.separator} />
+
+        <View style={styles.row}>
           <Info label="Medication" value={listing.medication} />
         </View>
       </View>
@@ -57,6 +82,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'red',
   },
+  header: {
+  position: 'relative',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 12,
+  height: 40,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    paddingHorizontal: 10,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
   image: {
     width: '100%',
     height: 250,
@@ -66,7 +109,7 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
-  title: {
+  about: {
     fontSize: 22,
     fontWeight: 'bold',
   },
@@ -96,4 +139,15 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 30,
   },
+  row: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  marginVertical: 8,
+},
+separator: {
+  height: 1,
+  backgroundColor: '#ddd',
+  marginVertical: 4,
+},
 });
