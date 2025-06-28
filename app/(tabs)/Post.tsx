@@ -1,7 +1,7 @@
 // 📁 app/(tabs)/save.tsx
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export default function SaveScreen() {
+export default function PostScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Neues Inserat erstellen</Text>

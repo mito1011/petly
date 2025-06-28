@@ -7,11 +7,11 @@ export default function TabLayout() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
-          let iconName = 'home';
-          if (route.name === 'home') iconName = 'home';
-          else if (route.name === 'save') iconName = 'add-circle';
-          else if (route.name === 'messages') iconName = 'chatbubbles';
-          else if (route.name === 'profile') iconName = 'person';
+          let iconName = 'Home';
+          if (route.name === 'Home') iconName = 'home';
+          else if (route.name === 'Post') iconName = 'add-circle';
+          else if (route.name === 'Messages') iconName = 'chatbubbles';
+          else if (route.name === 'Profile') iconName = 'person';
 
           return <Ionicons name={iconName as any} size={size} color={color} />;
         },
@@ -19,10 +19,10 @@ export default function TabLayout() {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tabs.Screen name="home" />
-      <Tabs.Screen name="save" />
-      <Tabs.Screen name="messages" />
-      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="Home" />
+      <Tabs.Screen name="Post" />
+      <Tabs.Screen name="Messages" />
+      <Tabs.Screen name="Profile" />
 
       {/* 👇 Diese Screens nicht als Tab anzeigen */}
       <Tabs.Screen name="listing/[id]" options={{ href: null }} />
