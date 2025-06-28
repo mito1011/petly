@@ -83,11 +83,11 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   header: {
-  position: 'relative',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginBottom: 12,
-  height: 40,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    height: 40,
   },
   backButton: {
     position: 'absolute',

@@ -1,10 +1,13 @@
 // 📁 app/sitter/[id].tsx
 import RatingBar from '@/components/RatinBar';
 import { dummyCaretakers } from '@/data/dummyCaretakers';
-import { useLocalSearchParams } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 
 export default function SitterProfile() {
+  const router = useRouter()
   const { id } = useLocalSearchParams();
   const sitter = dummyCaretakers.find((s) => s.id === String(id));
 
@@ -14,6 +17,13 @@ export default function SitterProfile() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#1E5128" />
+        </TouchableOpacity>
+        <Text style={styles.title}>{sitter.title}</Text>
+      </View>
+
       <Image source={{ uri: sitter.image }} style={styles.avatar} />
       <Text style={styles.name}>{sitter.title}</Text>
       <Text style={styles.description}>{sitter.description}</Text>
@@ -127,5 +137,23 @@ const styles = StyleSheet.create({
   reviewComment: {
     fontSize: 14,
     color: '#444',
+  },
+  header: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    height: 40,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    paddingHorizontal: 10,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
   },
 });
