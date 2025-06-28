@@ -9,6 +9,7 @@ type Props = {
     image: string;
     tags: string[];
     rating?: number;
+    reviews?: number;
   };
   right?: React.ReactNode;
 };
@@ -24,9 +25,14 @@ export default function ListingCard({ listing, right }: Props) {
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.content}>
         <Text style={styles.title}>{listing.title}</Text>
+        <div style={styles.score}>
         {listing.rating && (
-          <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)}</Text>
+          <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)} •</Text>
         )}
+        {listing.reviews && (
+          <Text style={styles.reviews}> {listing.reviews.toFixed(1)} Reviews</Text>
+        )}
+        </div>
         <View style={styles.tags}>
           {listing.tags.map((tag) => (
             <View key={tag} style={styles.tag}>
@@ -88,6 +94,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
+  reviews: {
+    marginTop: 6,
+    fontSize: 12,
+    color: '#666',
+  },
+    score: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    },
   right: {
     marginLeft: 10,
     justifyContent: 'center',

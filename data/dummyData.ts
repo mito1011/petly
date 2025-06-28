@@ -23,7 +23,7 @@ export const dummyListings = [
     id: '3',
     title: 'Simba',
     description: 'Simba braucht jeden Morgen frisches Futter.',
-    image: 'https://placekitten.com/400/400',
+    image: 'https://placedog.net/400?id=3',
     tags: ['Feeding'],
     rating: 5.0,
     reviews: 18,
