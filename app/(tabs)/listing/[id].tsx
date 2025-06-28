@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 30,
   }, 
-    button: {
+  button: {
     flex: 1,
     padding: 12,
     marginHorizontal: 6,

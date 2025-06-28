@@ -81,7 +81,7 @@ function Info({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     height: '100%',
   },
   error: {
@@ -98,20 +98,20 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: 0,
-    padding: 6,
+    padding: 10,
   },
   title: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    alignSelf: 'center',
-    marginTop: 12,
+    width: 100, 
+    height: 100, 
+    borderRadius: 50, 
+    alignSelf: 'center', 
+    marginBottom: 16
   },
   name: {
     fontSize: 20,
