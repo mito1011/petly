@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 
 export default function ApplicationDetail() {
-  const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { id } = useLocalSearchParams();
   const application = dummyApplications.find((a) => a.id === id);
 
   if (!application) return <Text style={styles.error}>Application not found</Text>;
@@ -22,7 +22,7 @@ export default function ApplicationDetail() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push(`/Messages`)} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1E5128" />
         </TouchableOpacity>
         <Text style={styles.title}>Application Details</Text>
@@ -90,10 +90,11 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   header: {
-    flexDirection: 'row',
+    position: 'relative',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
     height: 40,
-    marginBottom: 16,
   },
   backButton: {
     position: 'absolute',
