@@ -2,6 +2,7 @@ export const dummyApplications = [
   {
     id: 'app1',
     sitterId: 'a1',
+    listingId: '1',
     name: 'Sarah Miller',
     avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
     service: 'Dog Walking',
@@ -13,6 +14,7 @@ export const dummyApplications = [
   {
     id: 'app2',
     sitterId: 'a4',
+    listingId: '2',
     name: 'Liam Johnson',
     avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
     service: 'Dog Walking',
@@ -24,6 +26,7 @@ export const dummyApplications = [
   {
     id: 'app3',
     sitterId: 'a5',
+    listingId: '3',
     name: 'Ava Smith',
     avatar: 'https://randomuser.me/api/portraits/women/5.jpg',
     service: 'Dog Walking',

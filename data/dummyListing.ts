@@ -1,4 +1,5 @@
 // data/dummyData.ts
+
 export const dummyListings = [
   {
     id: '1',
@@ -16,6 +17,7 @@ export const dummyListings = [
     exercise: 'Daily walks and fetch',
     feeding: 'Twice a day',
     medication: 'None',
+    appliedBy: ['sitter1', 'sitter2'],
   },
   {
     id: '2',
@@ -23,7 +25,7 @@ export const dummyListings = [
     description: 'Independent but loves cuddles',
     rating: 4.5,
     reviews: 8,
-    image: 'https://images.pexels.com/photos/57416/cat-sweet-kitty-animals-57416.jpeg?_gl=1*dxvar5*_ga*MTg2NTQxNDEzMC4xNzUxMTI2NzA1*_ga_8JE65Q40S6*czE3NTExMjY3MDUkbzEkZzEkdDE3NTExMjY3MDgkajU3JGwwJGgw',
+    image: 'https://images.pexels.com/photos/57416/cat-sweet-kitty-animals-57416.jpeg',
     tags: ['Feeding', 'Overnight'],
     animalTypes: ['Cats'],
     about: 'Milo is a calm and independent cat who enjoys his space but loves cuddles on the couch. He is litter trained and loves napping in sunny spots.',
@@ -33,6 +35,7 @@ export const dummyListings = [
     exercise: 'Minimal – indoor play',
     feeding: 'Dry food twice daily',
     medication: 'Occasional eye drops',
+    appliedBy: ['sitter1'],
   },
   {
     id: '3',
@@ -40,7 +43,7 @@ export const dummyListings = [
     description: 'Shy but sweet rabbit',
     rating: 4.9,
     reviews: 5,
-    image: 'https://images.pexels.com/photos/104373/pexels-photo-104373.jpeg?_gl=1*lgaevf*_ga*MTg2NTQxNDEzMC4xNzUxMTI2NzA1*_ga_8JE65Q40S6*czE3NTExMjY3MDUkbzEkZzEkdDE3NTExMjY3NjIkajMkbDAkaDA.',
+    image: 'https://images.pexels.com/photos/104373/pexels-photo-104373.jpeg',
     tags: ['Feeding'],
     animalTypes: ['Other'],
     about: 'Bella is a gentle rabbit who loves munching on fresh vegetables and hiding in tunnels. She takes a little time to warm up but is very affectionate.',
@@ -50,5 +53,6 @@ export const dummyListings = [
     exercise: 'Free roam in playpen',
     feeding: 'Hay, pellets, fresh greens',
     medication: 'None',
+    appliedBy: [],
   }
 ];

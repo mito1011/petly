@@ -6,7 +6,7 @@ import SearchBar from '../../components/SearchBar';
 import TagSelector from '../../components/TagSelector';
 import { useUserRole } from '../../context/UserRoleContext';
 import { dummyCaretakers } from '../../data/dummyCaretakers'; // <— hier!
-import { dummyListings } from '../../data/dummyData';
+import { dummyListings } from '../../data/dummyListing';
 
 export default function HomeScreen() {
   const { role } = useUserRole();
