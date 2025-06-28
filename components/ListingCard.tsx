@@ -13,9 +13,10 @@ type Props = {
     reviews?: number;
   };
   right?: React.ReactNode;
+  from?: 'home' | 'messages'; // optional
 };
 
-export default function ListingCard({ listing, right }: Props) {
+export default function ListingCard({ listing, right, from = 'home' }: Props) {
   const router = useRouter();
   const { role } = useUserRole();
 
@@ -23,7 +24,10 @@ export default function ListingCard({ listing, right }: Props) {
     if (role === 'owner') {
       router.push(`/sitter/${listing.id}`);
     } else {
-      router.push(`/listing/${listing.id}`);
+      router.push({
+        pathname: `/listing/${listing.id}`,
+        params: { from },
+      });
     }
   };
 

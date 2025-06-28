@@ -1,49 +1,98 @@
-// 📁 app/(tabs)/Messages.tsx
+// app/(tabs)/messages.tsx
+import { useUserRole } from '@/context/UserRoleContext';
 import { dummyApplications } from '@/data/dummyApplications';
+import { dummyListings } from '@/data/dummyListing';
 import { useRouter } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function Messages() {
+export default function MessagesScreen() {
+  const { role } = useUserRole();
   const router = useRouter();
-  const pending = dummyApplications.filter(app => app.status === 'pending');
-  const accepted = dummyApplications.filter(app => app.status === 'accepted');
 
-  const renderApp = (app) => (
-    <TouchableOpacity
-      key={app.id}
-      style={styles.row}
-      onPress={() => router.push(`/application/${app.id}`)}
-    >
-      <Image source={{ uri: app.avatar }} style={styles.avatar} />
-      <View>
-        <Text style={styles.name}>{app.name}</Text>
-        <Text style={styles.meta}>{app.service} · {app.date}</Text>
+  if (role === 'owner') {
+    const pending = dummyApplications.filter(app => app.status === 'pending');
+    const accepted = dummyApplications.filter(app => app.status === 'accepted');
+
+    const renderItem = ({ item }) => (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => router.push(`/application/${item.id}`)}
+      >
+        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        <View>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.sub}>{item.service} · {item.date}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Applications</Text>
+        <Text style={styles.label}>Pending</Text>
+        <FlatList
+          data={pending}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+        />
+        <Text style={styles.label}>Accepted</Text>
+        <FlatList
+          data={accepted}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+        />
       </View>
-    </TouchableOpacity>
-  );
+    );
+  } else {
+    const appliedListings = dummyListings.filter(listing => listing.appliedBy?.includes('sitter1'));
 
-  return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
-      <Text style={styles.sectionTitle}>Pending</Text>
-      {pending.map(renderApp)}
+    const renderListing = ({ item }) => (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => router.push(`/listing/${item.id}`)}
+      >
+        <Image source={{ uri: item.image }} style={styles.avatar} />
+        <View>
+          <Text style={styles.name}>{item.title}</Text>
+          <Text style={styles.sub}>{item.tags.join(', ')}</Text>
+        </View>
+      </TouchableOpacity>
+    );
 
-      <Text style={styles.sectionTitle}>Accepted</Text>
-      {accepted.map(renderApp)}
-    </ScrollView>
-  );
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Your Applications</Text>
+        <FlatList
+          data={appliedListings}
+          renderItem={renderListing}
+          keyExtractor={item => item.id}
+        />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-  sectionTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginTop: 20,
-    marginBottom: 10,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 16,
   },
-  row: {
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center'
+  },
+  label: {
+    fontWeight: 'bold',
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  item: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    paddingVertical: 8,
   },
   avatar: {
     width: 48,
@@ -53,10 +102,9 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 16,
   },
-  meta: {
-    color: '#888',
-    fontSize: 13,
+  sub: {
+    color: '#666',
   },
 });

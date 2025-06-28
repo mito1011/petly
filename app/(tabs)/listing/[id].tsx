@@ -1,12 +1,12 @@
 // app/listing/[id].tsx
-import { dummyListings } from '@/data/dummyData';
+import { dummyListings } from '@/data/dummyListing';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ListingDetails() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const listing = dummyListings.find((item) => item.id === id);
 
   if (!listing) {
@@ -16,7 +16,16 @@ export default function ListingDetails() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => {
+            if (from === 'home') {
+              router.push('/Home');
+            } else {
+              router.push('/Messages');
+            }
+          }}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color="#1E5128" />
         </TouchableOpacity>
         <Text style={styles.title}>{listing.title}</Text>

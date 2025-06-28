@@ -1,5 +1,6 @@
-// app/application/[id].tsx
+import { useUserRole } from '@/context/UserRoleContext';
 import { dummyApplications } from '@/data/dummyApplications';
+import { dummyListings } from '@/data/dummyListing';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -15,35 +16,51 @@ import {
 export default function ApplicationDetail() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { role } = useUserRole();
+
   const application = dummyApplications.find((a) => a.id === id);
 
   if (!application) return <Text style={styles.error}>Application not found</Text>;
 
+  const listing = dummyListings.find((l) => l.id === application.listingId);
+
+  const handleBack = () => {
+    router.push('/Messages');
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push(`/Messages`)} style={styles.backButton}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1E5128" />
         </TouchableOpacity>
         <Text style={styles.title}>Application Details</Text>
       </View>
 
-      <Image source={{ uri: application.avatar }} style={styles.avatar} />
-      <Text style={styles.name}>{application.name}</Text>
-      <Text style={styles.role}>{application.service}</Text>
+      {role === 'owner' ? (
+        <>
+          <Image source={{ uri: application.avatar }} style={styles.avatar} />
+          <Text style={styles.name}>{application.name}</Text>
+          <Text style={styles.role}>{application.service}</Text>
+        </>
+      ) : (
+        listing && (
+          <>
+            <Image source={{ uri: listing.image }} style={styles.avatar} />
+            <Text style={styles.name}>{listing.title}</Text>
+            <Text style={styles.role}>{listing.breed}</Text>
+          </>
+        )
+      )}
 
       <View style={styles.section}>
         <Text style={styles.heading}>Details</Text>
-
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Service" value={application.service} />
           <Info label="Date" value={application.date} />
         </View>
-
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Time" value={application.time} />
           <Info label="Rate" value={application.rate} />
@@ -51,20 +68,24 @@ export default function ApplicationDetail() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.heading}>About {application.name.split(' ')[0]}</Text>
+        <Text style={styles.heading}>About</Text>
         <Text style={styles.about}>
-          I'm a passionate dog lover with 5+ years of experience caring for dogs of all breeds and sizes. I offer a safe, loving environment where your furry friend will feel right at home. I'm available for walks, drop-ins, and overnight stays.
+          {role === 'owner'
+            ? `I'm a passionate dog lover with 5+ years of experience caring for dogs of all breeds and sizes. I offer a safe, loving environment where your furry friend will feel right at home.`
+            : listing?.about || 'No description provided.'}
         </Text>
       </View>
 
-      <View style={styles.buttonRow}>
-        <Pressable style={[styles.button, styles.accept]}>
-          <Text style={styles.buttonText}>Accept</Text>
-        </Pressable>
-        <Pressable style={[styles.button, styles.deny]}>
-          <Text style={styles.buttonText}>Deny</Text>
-        </Pressable>
-      </View>
+      {role === 'owner' && (
+        <View style={styles.buttonRow}>
+          <Pressable style={[styles.button, styles.accept]}>
+            <Text style={styles.buttonText}>Accept</Text>
+          </Pressable>
+          <Pressable style={[styles.button, styles.deny]}>
+            <Text style={styles.buttonText}>Deny</Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -108,11 +129,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   avatar: {
-    width: 100, 
-    height: 100, 
-    borderRadius: 50, 
-    alignSelf: 'center', 
-    marginBottom: 16
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 16,
   },
   name: {
     fontSize: 20,
