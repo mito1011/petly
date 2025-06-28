@@ -27,6 +27,7 @@ export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={{ padding: 16 }}>
       <SearchBar value={query} onChange={setQuery} />
+      <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold'}}>Care Needs</Text>
       <TagSelector
         tags={['Walks', 'Feeding', 'Daycare', 'Training', 'Overnight']}
         selectedTags={selectedTags}
@@ -39,7 +40,7 @@ export default function HomeScreen() {
 
       {role === 'sitter' && (
         <>
-          <Text style={{ fontSize: 18, marginVertical: 12 }}>Aktuelle Inserate</Text>
+          <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>Pets Near You</Text>
           {filteredListings.map((listing) => (
             <ListingCard key={listing.id} listing={listing} />
           ))}
@@ -48,7 +49,7 @@ export default function HomeScreen() {
 
       {role === 'owner' && (
         <>
-          <Text style={{ fontSize: 18, marginVertical: 12 }}>Verfügbare Sitter</Text>
+          <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>Sitters Near You</Text>
           {filteredCaretakers.map((sitter) => (
             <ListingCard key={sitter.id} listing={sitter} />
           ))}

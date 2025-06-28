@@ -1,0 +1,2 @@
+caretaker profile + weiterleitung aufs profil bei den inseraten für owner auf home
+inserate detailansicht + weiterleitung aufs inserat für sitter auf home

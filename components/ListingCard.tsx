@@ -22,9 +22,11 @@ export default function ListingCard({ listing, right }: Props) {
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <Image source={{ uri: listing.image }} style={styles.image} />
       <View style={styles.content}>
         <Text style={styles.title}>{listing.title}</Text>
+        {listing.rating && (
+          <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)}</Text>
+        )}
         <View style={styles.tags}>
           {listing.tags.map((tag) => (
             <View key={tag} style={styles.tag}>
@@ -32,11 +34,9 @@ export default function ListingCard({ listing, right }: Props) {
             </View>
           ))}
         </View>
-        {listing.rating && (
-          <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)}</Text>
-        )}
       </View>
       {right && <View style={styles.right}>{right}</View>}
+      <Image source={{ uri: listing.image }} style={styles.image} />
     </TouchableOpacity>
   );
 }
@@ -52,8 +52,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     borderRadius: 8,
     marginRight: 12,
   },
