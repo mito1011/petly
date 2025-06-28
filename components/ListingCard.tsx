@@ -1,3 +1,4 @@
+import { useUserRole } from '@/context/UserRoleContext';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -16,23 +17,28 @@ type Props = {
 
 export default function ListingCard({ listing, right }: Props) {
   const router = useRouter();
+  const { role } = useUserRole();
 
   const handlePress = () => {
-    router.push(`/listing/${listing.id}`);
+    if (role === 'owner') {
+      router.push(`/sitter/${listing.id}`);
+    } else {
+      router.push(`/listing/${listing.id}`);
+    }
   };
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.content}>
         <Text style={styles.title}>{listing.title}</Text>
-        <div style={styles.score}>
-        {listing.rating && (
-          <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)} •</Text>
-        )}
-        {listing.reviews && (
-          <Text style={styles.reviews}> {listing.reviews.toFixed(1)} Reviews</Text>
-        )}
-        </div>
+        <View style={styles.score}>
+          {listing.rating && (
+            <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)} •</Text>
+          )}
+          {listing.reviews && (
+            <Text style={styles.reviews}> {listing.reviews.toFixed(1)} Reviews</Text>
+          )}
+        </View>
         <View style={styles.tags}>
           {listing.tags.map((tag) => (
             <View key={tag} style={styles.tag}>
@@ -41,8 +47,8 @@ export default function ListingCard({ listing, right }: Props) {
           ))}
         </View>
       </View>
-      {right && <View style={styles.right}>{right}</View>}
       <Image source={{ uri: listing.image }} style={styles.image} />
+      {right && <View style={styles.right}>{right}</View>}
     </TouchableOpacity>
   );
 }
@@ -99,11 +105,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-    score: {
+  score: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-    },
+  },
   right: {
     marginLeft: 10,
     justifyContent: 'center',

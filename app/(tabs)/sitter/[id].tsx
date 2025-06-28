@@ -1,22 +1,53 @@
-// 📁 app/sitter/[id].tsx
+import { dummyCaretakers } from '@/data/dummyCaretakers';
 import { useLocalSearchParams } from 'expo-router';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text } from 'react-native';
 
 export default function SitterProfile() {
   const { id } = useLocalSearchParams();
+  
+  if (!dummyCaretakers || !Array.isArray(dummyCaretakers)) {
+    return <Text>Fehler beim Laden der Daten</Text>;
+  }
+
+  const sitter = dummyCaretakers.find((s) => s.id === id);
+
+  if (!sitter) {
+    return <Text>Sitter nicht gefunden</Text>;
+  }
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.avatar} />
-      <Text style={styles.name}>Sitterprofil {id}</Text>
-      <Text style={styles.info}>Erfahrene Tiersitterin, bietet Hundespaziergänge und Katzenbetreuung</Text>
-    </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Image source={{ uri: sitter.image }} style={styles.avatar} />
+      <Text style={styles.name}>{sitter.title}</Text>
+      <Text style={styles.description}>{sitter.description}</Text>
+      <Text style={styles.about}>{sitter.about}</Text>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', padding: 20 },
-  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 20 },
-  name: { fontSize: 20, fontWeight: 'bold' },
-  info: { fontSize: 16, textAlign: 'center', color: 'gray' },
+  container: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  description: {
+    fontSize: 16,
+    color: '#666',
+    marginVertical: 8,
+  },
+  about: {
+    fontSize: 15,
+    marginVertical: 8,
+    textAlign: 'center',
+  },
 });
