@@ -23,6 +23,11 @@ export default function TabLayout() {
       <Tabs.Screen name="save" />
       <Tabs.Screen name="messages" />
       <Tabs.Screen name="profile" />
+
+      {/* 👇 Diese Screens nicht als Tab anzeigen */}
+      <Tabs.Screen name="listing/[id]" options={{ href: null }} />
+      <Tabs.Screen name="sitter/[id]" options={{ href: null }} />
+      <Tabs.Screen name="application/[id]" options={{ href: null }} />
     </Tabs>
   );
 }
