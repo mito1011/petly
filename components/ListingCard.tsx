@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 6,
     marginTop: 4,
+    marginLeft: -6,
   },
   tagText: {
     fontSize: 12,

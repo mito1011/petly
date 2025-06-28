@@ -26,12 +26,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     marginVertical: 8,
+    marginBottom: 12,
   },
   tag: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
-    backgroundColor: '#eee',
+    backgroundColor: '#abcc',
   },
   selected: {
     backgroundColor: '#34c759',
