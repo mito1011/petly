@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Picker, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Picker,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const imageMap = {
   Dogs: 'https://placedog.net/400/400?id=10',
@@ -8,6 +17,8 @@ const imageMap = {
 };
 
 const animalTypeOptions = ['Dogs', 'Cats', 'Other'];
+const tagOptions = ['Walks', 'Daycare', 'Feeding', 'Training', 'Overnight'];
+const sizeOptions = ['Small', 'Medium', 'Large'];
 
 export default function PostScreen() {
   const [form, setForm] = useState({
@@ -18,11 +29,20 @@ export default function PostScreen() {
     about: '',
     breed: '',
     age: '',
-    size: '',
+    size: 'Medium',
     exercise: '',
     feeding: '',
     medication: '',
   });
+
+  const toggleTag = (tag) => {
+    setForm((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag)
+        ? prev.tags.filter((t) => t !== tag)
+        : [...prev.tags, tag],
+    }));
+  };
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -37,32 +57,48 @@ export default function PostScreen() {
       <Input label="Title" value={form.title} onChangeText={(val) => handleChange('title', val)} />
       <Input label="Description" value={form.description} onChangeText={(val) => handleChange('description', val)} />
 
+      <Dropdown
+        label="Animal Type"
+        selected={form.animalTypes}
+        options={animalTypeOptions}
+        onChange={(val) => handleChange('animalTypes', val)}
+      />
+
+      <Dropdown
+        label="Size"
+        selected={form.size}
+        options={sizeOptions}
+        onChange={(val) => handleChange('size', val)}
+      />
+
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Animal Type</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={form.animalTypes}
-            onValueChange={(itemValue) => handleChange('animalTypes', itemValue)}
-            style={Platform.OS === 'ios' ? styles.pickerIOS : undefined}
-          >
-            {animalTypeOptions.map((type) => (
-              <Picker.Item label={type} value={type} key={type} />
-            ))}
-          </Picker>
+        <Text style={styles.label}>Tags</Text>
+        <View style={styles.tagContainer}>
+          {tagOptions.map((tag) => (
+            <TouchableOpacity
+              key={tag}
+              style={[
+                styles.tag,
+                form.tags.includes(tag) && styles.tagSelected,
+              ]}
+              onPress={() => toggleTag(tag)}
+            >
+              <Text
+                style={[
+                  styles.tagText,
+                  form.tags.includes(tag) && styles.tagTextSelected,
+                ]}
+              >
+                {tag}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
-      <Input
-        label="Tags (comma separated)"
-        value={form.tags.join(', ')}
-        onChangeText={(val) =>
-          handleChange('tags', val.split(',').map((tag) => tag.trim()))
-        }
-      />
       <Input label="About" multiline value={form.about} onChangeText={(val) => handleChange('about', val)} />
       <Input label="Breed" value={form.breed} onChangeText={(val) => handleChange('breed', val)} />
       <Input label="Age" value={form.age} onChangeText={(val) => handleChange('age', val)} />
-      <Input label="Size (Small, Medium, Large)" value={form.size} onChangeText={(val) => handleChange('size', val)} />
       <Input label="Exercise" value={form.exercise} onChangeText={(val) => handleChange('exercise', val)} />
       <Input label="Feeding" value={form.feeding} onChangeText={(val) => handleChange('feeding', val)} />
       <Input label="Medication" value={form.medication} onChangeText={(val) => handleChange('medication', val)} />
@@ -87,6 +123,25 @@ function Input({ label, value, onChangeText, multiline = false }) {
         onChangeText={onChangeText}
         multiline={multiline}
       />
+    </View>
+  );
+}
+
+function Dropdown({ label, selected, options, onChange }) {
+  return (
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={selected}
+          onValueChange={(itemValue) => onChange(itemValue)}
+          style={Platform.OS === 'ios' ? styles.pickerIOS : undefined}
+        >
+          {options.map((opt) => (
+            <Picker.Item label={opt} value={opt} key={opt} />
+          ))}
+        </Picker>
+      </View>
     </View>
   );
 }
@@ -130,6 +185,28 @@ const styles = StyleSheet.create({
   },
   pickerIOS: {
     height: 120,
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  tag: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#eee',
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  tagSelected: {
+    backgroundColor: '#1E5128',
+  },
+  tagText: {
+    fontSize: 13,
+    color: '#333',
+  },
+  tagTextSelected: {
+    color: '#fff',
   },
   imagePreviewNote: {
     fontStyle: 'italic',

@@ -1,5 +1,4 @@
 // data/dummyListing.ts
-
 export const dummyListings = [
   {
     id: '1',
