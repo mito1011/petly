@@ -95,7 +95,7 @@ export const dummyListings = [
     description: 'Curious and social guinea pig',
     rating: 4.4,
     reviews: 4,
-    image: 'https://images.pexels.com/photos/161519/guinea-pig-rodent-animal-cute-161519.jpeg',
+    image: 'https://media.istockphoto.com/id/1223412939/de/foto/das-rote-hausschweinschwein-auch-bekannt-als-cavy-oder.jpg?s=612x612&w=0&k=20&c=OJ05SO4EZ27MAAR6Jl_WlcOsUQlvcvD-92qZo_PlgEY=',
     tags: ['Daycare'],
     animalTypes: ['Other'],
     about: 'Chester loves attention and needs company throughout the day.',
