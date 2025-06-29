@@ -16,7 +16,7 @@ import {
 export default function ApplicationDetail() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { role } = useUserRole();
+  const { userInfo } = useUserRole();
 
   const application = dummyApplications.find((a) => a.id === id);
 
@@ -28,6 +28,10 @@ export default function ApplicationDetail() {
     router.push('/Messages');
   };
 
+  if (!userInfo) {
+    return <Text style={styles.error}>User not found</Text>;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -37,7 +41,7 @@ export default function ApplicationDetail() {
         <Text style={styles.title}>Application Details</Text>
       </View>
 
-      {role === 'owner' ? (
+      {userInfo.role === 'owner' ? (
         <>
           <Image source={{ uri: application.avatar }} style={styles.avatar} />
           <Text style={styles.name}>{application.name}</Text>
@@ -70,13 +74,13 @@ export default function ApplicationDetail() {
       <View style={styles.section}>
         <Text style={styles.heading}>About</Text>
         <Text style={styles.about}>
-          {role === 'owner'
+          {userInfo.role === 'owner'
             ? `I'm a passionate dog lover with 5+ years of experience caring for dogs of all breeds and sizes. I offer a safe, loving environment where your furry friend will feel right at home.`
             : listing?.about || 'No description provided.'}
         </Text>
       </View>
 
-      {role === 'owner' && (
+      {userInfo.role === 'owner' && (
         <View style={styles.buttonRow}>
           <Pressable style={[styles.button, styles.accept]}>
             <Text style={styles.buttonText}>Accept</Text>

@@ -5,49 +5,44 @@ import { useRouter } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function ProfileScreen() {
-  const { role, setRole } = useUserRole();
+  const { userInfo } = useUserRole();
+  const user = dummyUsers.find((u) => u.id === userInfo?.userId);
   const router = useRouter();
-  const user = dummyUsers.find((u) => u.role === role);
 
-  if (!user) return <Text style={styles.error}>User not found</Text>;
+  if (!user) {
+    return <Text style={styles.error}>User not found</Text>;
+  }
 
   const handleLogout = () => {
-    router.replace('/login'); // navigiert zur Login-Seite
+    router.replace('/login');
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={{ uri: user.avatar }} style={styles.avatar} />
       <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.location}>{user.location}</Text>
-
-      <View style={styles.section}>
-        <Text style={styles.heading}>Member Since</Text>
-        <Text>{user.memberSince}</Text>
-      </View>
+      <Text style={styles.sub}>{user.location}</Text>
+      <Text style={styles.member}>Member since {user.memberSince}</Text>
 
       <View style={styles.section}>
         <Text style={styles.heading}>About</Text>
-        <Text>{user.about}</Text>
+        <Text style={styles.about}>{user.bio || user.about}</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.heading}>Statistics</Text>
-        <View style={styles.statsRow}>
-          {Object.entries({
-            Pets: user.petsOwned || 0,
-            Listings: user.listingsCreated || 0,
-            ...(user.completedJobs ? { Jobs: user.completedJobs } : {}),
-            ...(user.repeatClients ? { Clients: user.repeatClients } : {})
-          }).map(([label, value]) => (
-            <View key={label} style={styles.statBox}>
-              <Text style={styles.statValue}>{String(value)}</Text>
-              <Text style={styles.statLabel}>{label}</Text>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.heading}>{user.role === 'owner' ? 'My Stats' : 'Experience'}</Text>
+        {user.role === 'owner' ? (
+          <>
+            <Text style={styles.stat}>Pets Owned: {user.petsOwned}</Text>
+            <Text style={styles.stat}>Listings Created: {user.listingsCreated}</Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.stat}>Completed Jobs: {user.completedJobs}</Text>
+            <Text style={styles.stat}>Repeat Clients: {user.repeatClients}</Text>
+          </>
+        )}
       </View>
-
       <Pressable style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Logout</Text>
       </Pressable>
@@ -57,14 +52,14 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    alignItems: 'center',
+    padding: 16,
     backgroundColor: '#fff',
+    alignItems: 'center',
   },
   error: {
     padding: 20,
-    textAlign: 'center',
     color: 'red',
+    textAlign: 'center',
   },
   avatar: {
     width: 100,
@@ -76,8 +71,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
   },
-  location: {
+  sub: {
     color: '#666',
+    marginBottom: 4,
+  },
+  member: {
+    color: '#999',
     marginBottom: 20,
   },
   section: {
@@ -85,25 +84,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   heading: {
-    fontWeight: 'bold',
     fontSize: 16,
-    marginBottom: 8,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statBox: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statValue: {
-    fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 6,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
+  about: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 20,
+  },
+  stat: {
+    fontSize: 14,
+    color: '#333',
+    marginVertical: 2,
   },
   logoutButton: {
     marginTop: 30,

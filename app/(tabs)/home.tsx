@@ -9,7 +9,7 @@ import { dummyCaretakers } from '../../data/dummyCaretakers'; // <— hier!
 import { dummyListings } from '../../data/dummyListing';
 
 export default function HomeScreen() {
-  const { role } = useUserRole();
+  const { userInfo } = useUserRole();
   const [query, setQuery] = React.useState('');
   const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
   const [selectedAnimalTypes, setSelectedAnimalTypes] = React.useState<string[]>([]);
@@ -27,6 +27,10 @@ export default function HomeScreen() {
 
   const filteredListings = filterItems(dummyListings);
   const filteredCaretakers = filterItems(dummyCaretakers);
+
+  if (!userInfo) {
+    return <Text style={{ padding: 20 }}>User not found</Text>;
+  }
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -51,7 +55,7 @@ export default function HomeScreen() {
         }
       />
 
-      {role === 'sitter' && (
+      {userInfo.role === 'sitter' && (
         <>
           <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>Pets Near You</Text>
           {filteredListings.map((listing) => (
@@ -60,7 +64,7 @@ export default function HomeScreen() {
         </>
       )}
 
-      {role === 'owner' && (
+      {userInfo.role === 'owner' && (
         <>
           <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>Sitters Near You</Text>
           {filteredCaretakers.map((sitter) => (

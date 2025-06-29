@@ -1,8 +1,8 @@
 export const dummyApplications = [
   {
     id: 'a1',
-    sitterId: 'Sitter1',
-    ownerId: 'Owner1', // ✅ hinzufügen
+    sitterId: 'sitter1',
+    ownerId: 'owner1', // ✅ hinzufügen
     listingId: '1',
     name: 'Jonas Becker',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
@@ -14,8 +14,8 @@ export const dummyApplications = [
   },
   {
     id: 'a2',
-    sitterId: 'Sitter2',
-    ownerId: 'Owner2', // ✅ hinzufügen
+    sitterId: 'sitter2',
+    ownerId: 'owner2', // ✅ hinzufügen
     listingId: '2',
     name: 'Lena Schmidt',
     avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
@@ -27,8 +27,8 @@ export const dummyApplications = [
   },
   {
     id: 'a3',
-    sitterId: 'Sitter3',
-    ownerId: 'Owner3', // ✅ hinzufügen
+    sitterId: 'sitter3',
+    ownerId: 'owner3', // ✅ hinzufügen
     listingId: '3',
     name: 'Tobias Klein',
     avatar: 'https://randomuser.me/api/portraits/men/54.jpg',

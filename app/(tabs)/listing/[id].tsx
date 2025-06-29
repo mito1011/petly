@@ -7,7 +7,10 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View 
 export default function ListingDetails() {
   const router = useRouter();
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
-  const listing = dummyListings.find((item) => item.id === id);
+  const listingId = Array.isArray(id) ? id[0] : id;
+  const listing = dummyListings.find((item) => item.id === listingId);
+  console.log('listingId:', listingId);
+  console.log('dummyListings:', dummyListings.map(l => l.id));
 
   if (!listing) {
     return <Text style={styles.error}>Listing not found.</Text>;

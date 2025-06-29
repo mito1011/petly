@@ -1,7 +1,7 @@
 // data/dummyCaretakers.ts
 export const dummyCaretakers = [
   {
-    id: 'a1',
+    id: 'sitter1',
     title: 'Anna the Dog Whisperer',
     description: 'Experienced with all breeds, loves long walks.',
     rating: 4.9,
@@ -21,7 +21,7 @@ export const dummyCaretakers = [
         name: 'Emily Carter',
         date: '2 months ago',
         rating: 5,
-        comment: 'Sarah is amazing! She took such great care of my golden retriever, Max. He came home happy and tired. I highly recommend her!',
+        comment: 'Anna is amazing! She took such great care of my golden retriever, Max. He came home happy and tired. I highly recommend her!',
         likes: 10,
         replies: 1,
         avatar: 'https://randomuser.me/api/portraits/women/10.jpg'
@@ -31,7 +31,7 @@ export const dummyCaretakers = [
         name: 'David Lee',
         date: '3 months ago',
         rating: 5,
-        comment: "Sarah is the best! She's reliable, trustworthy, and truly loves dogs. My pug, Winston, adores her. I'd definitely be booking her again.",
+        comment: "Anna is the best! She's reliable, trustworthy, and truly loves dogs. My pug, Winston, adores her. I'd definitely be booking her again.",
         likes: 8,
         replies: 0,
         avatar: 'https://randomuser.me/api/portraits/men/10.jpg'
@@ -43,11 +43,10 @@ export const dummyCaretakers = [
       3: 1,
       2: 1,
       1: 1
-    },
-    sitterId: 'a1'
+    }
   },
   {
-    id: 'a2',
+    id: 'sitter2',
     title: 'Cat Loving Carla',
     description: 'Specialist in feline care.',
     rating: 4.7,
@@ -89,11 +88,10 @@ export const dummyCaretakers = [
       3: 3,
       2: 1,
       1: 1
-    },
-    sitterId: 'a2'
+    }
   },
   {
-    id: 'a3',
+    id: 'sitter3',
     title: 'Multi-Pet Max',
     description: 'Experienced with rabbits, hamsters, and more.',
     rating: 4.6,
@@ -135,7 +133,6 @@ export const dummyCaretakers = [
       3: 5,
       2: 3,
       1: 2
-    },
-    sitterId: 'a3'
+    }
   }
 ];

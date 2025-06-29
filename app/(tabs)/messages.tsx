@@ -6,12 +6,16 @@ import { useRouter } from 'expo-router';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function MessagesScreen() {
-  const { role } = useUserRole();
+  const { userInfo } = useUserRole();
   const router = useRouter();
 
-  if (role === 'owner') {
-    const pending = dummyApplications.filter(app => app.status === 'pending');
-    const accepted = dummyApplications.filter(app => app.status === 'accepted');
+  if (!userInfo) {
+    return <Text style={{ padding: 20 }}>User not found</Text>;
+  }
+
+  if (userInfo.role === 'owner') {
+    const pending = dummyApplications.filter(app => app.status === 'pending' && app.ownerId === userInfo.userId);
+    const accepted = dummyApplications.filter(app => app.status === 'accepted' && app.ownerId === userInfo.userId);
 
     const renderItem = ({ item }) => (
       <TouchableOpacity
@@ -30,26 +34,20 @@ export default function MessagesScreen() {
       <View style={styles.container}>
         <Text style={styles.header}>Applications</Text>
         <Text style={styles.label}>Pending</Text>
-        <FlatList
-          data={pending}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
+        <FlatList data={pending} renderItem={renderItem} keyExtractor={item => item.id} />
         <Text style={styles.label}>Accepted</Text>
-        <FlatList
-          data={accepted}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
+        <FlatList data={accepted} renderItem={renderItem} keyExtractor={item => item.id} />
       </View>
     );
   } else {
-    const appliedListings = dummyListings.filter(listing => listing.appliedBy?.includes('sitter1'));
+    const appliedListings = dummyListings.filter(listing =>
+      listing.appliedBy?.includes(userInfo.userId)
+    );
 
     const renderListing = ({ item }) => (
       <TouchableOpacity
         style={styles.item}
-        onPress={() => router.push(`/listing/${item.id}`)}
+        onPress={() => router.push({ pathname: `/listing/${item.id}`, params: { from: 'messages' } })}
       >
         <Image source={{ uri: item.image }} style={styles.avatar} />
         <View>

@@ -3,18 +3,26 @@ import React, { createContext, useContext, useState } from 'react';
 
 type UserRole = 'owner' | 'sitter';
 
-interface UserRoleContextProps {
+interface UserInfo {
+  userId: string;
   role: UserRole;
-  setRole: (role: UserRole) => void;
+}
+
+interface UserRoleContextProps {
+  userInfo: UserInfo | null;
+  setUserInfo: (info: UserInfo) => void;
+  logout: () => void;
 }
 
 const UserRoleContext = createContext<UserRoleContextProps | undefined>(undefined);
 
 export const UserRoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRole] = useState<UserRole>('owner'); // default z. B. owner
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+  const logout = () => setUserInfo(null);
 
   return (
-    <UserRoleContext.Provider value={{ role, setRole }}>
+    <UserRoleContext.Provider value={{ userInfo, setUserInfo, logout }}>
       {children}
     </UserRoleContext.Provider>
   );

@@ -18,10 +18,14 @@ type Props = {
 
 export default function ListingCard({ listing, right, from = 'home' }: Props) {
   const router = useRouter();
-  const { role } = useUserRole();
+  const { userInfo } = useUserRole();
+
+  if (!userInfo) {
+    return <Text style={{ padding: 20 }}>User not found</Text>;
+  }
 
   const handlePress = () => {
-    if (role === 'owner') {
+    if (userInfo.role === 'owner') {
       router.push(`/sitter/${listing.id}`);
     } else {
       router.push({

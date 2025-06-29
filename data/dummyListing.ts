@@ -1,4 +1,4 @@
-// data/dummyData.ts
+// data/dummyListing.ts
 
 export const dummyListings = [
   {
