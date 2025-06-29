@@ -1,4 +1,4 @@
-- eigenes Profil anzeigen und bearbeiten
+- Inseratsformulare
 - Inserate erstellen und posten
 
 später:
