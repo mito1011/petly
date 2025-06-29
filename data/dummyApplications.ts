@@ -1,8 +1,9 @@
 export const dummyApplications = [
+  // === Owner 1 ===
   {
     id: 'a1',
     sitterId: 'sitter1',
-    ownerId: 'owner1', // ✅ hinzufügen
+    ownerId: 'owner1',
     listingId: '1',
     name: 'Jonas Becker',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
@@ -13,9 +14,37 @@ export const dummyApplications = [
     status: 'pending',
   },
   {
+    id: 'a4',
+    sitterId: 'sitter2',
+    ownerId: 'owner1',
+    listingId: '1',
+    name: 'Lena Schmidt',
+    avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+    service: 'Dog Sitting',
+    date: '2025-07-04',
+    time: '09:00',
+    rate: '$25/hr',
+    status: 'accepted',
+  },
+  {
+    id: 'a7',
+    sitterId: 'sitter3',
+    ownerId: 'owner1',
+    listingId: '1',
+    name: 'Tobias Klein',
+    avatar: 'https://randomuser.me/api/portraits/men/54.jpg',
+    service: 'Daycare',
+    date: '2025-07-07',
+    time: '08:00',
+    rate: '$30/day',
+    status: 'pending',
+  },
+
+  // === Owner 2 ===
+  {
     id: 'a2',
     sitterId: 'sitter2',
-    ownerId: 'owner2', // ✅ hinzufügen
+    ownerId: 'owner2',
     listingId: '2',
     name: 'Lena Schmidt',
     avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
@@ -26,9 +55,24 @@ export const dummyApplications = [
     status: 'accepted',
   },
   {
+    id: 'a5',
+    sitterId: 'sitter1',
+    ownerId: 'owner2',
+    listingId: '2',
+    name: 'Jonas Becker',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    service: 'Pet Feeding',
+    date: '2025-07-06',
+    time: '11:00',
+    rate: '$10/visit',
+    status: 'pending',
+  },
+
+  // === Owner 3 ===
+  {
     id: 'a3',
     sitterId: 'sitter3',
-    ownerId: 'owner3', // ✅ hinzufügen
+    ownerId: 'owner3',
     listingId: '3',
     name: 'Tobias Klein',
     avatar: 'https://randomuser.me/api/portraits/men/54.jpg',
@@ -37,5 +81,18 @@ export const dummyApplications = [
     time: '10:00',
     rate: '$20/hr',
     status: 'pending',
+  },
+  {
+    id: 'a6',
+    sitterId: 'sitter2',
+    ownerId: 'owner3',
+    listingId: '3',
+    name: 'Lena Schmidt',
+    avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+    service: 'Pet Boarding',
+    date: '2025-07-09',
+    time: '18:00',
+    rate: '$35/night',
+    status: 'accepted',
   },
 ];
