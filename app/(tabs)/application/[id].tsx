@@ -1,8 +1,8 @@
+// app/application/[id].tsx
 import { useUserRole } from '@/context/UserRoleContext';
-import { dummyApplications } from '@/data/dummyApplications';
-import { dummyListings } from '@/data/dummyListing';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -13,24 +13,58 @@ import {
   View,
 } from 'react-native';
 
+const BASE_URL = 'http://localhost:3000/api/v1';
+
 export default function ApplicationDetail() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { userInfo } = useUserRole();
 
-  const application = dummyApplications.find((a) => a.id === id);
-
-  if (!application) return <Text style={styles.error}>Application not found</Text>;
-
-  const listing = dummyListings.find((l) => l.id === application.listingId);
+  const [application, setApplication] = useState<any | null>(null);
+  const [listing, setListing] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleBack = () => {
     router.push('/Messages');
   };
 
-  if (!userInfo) {
-    return <Text style={styles.error}>User not found</Text>;
-  }
+  useEffect(() => {
+    if (!id || !userInfo) return;
+
+    // hole alle Bewerbungen zu diesem Listing und finde die passende Bewerbung per ID
+    fetch(`${BASE_URL}/sitters/${userInfo.userId}/applications`)
+      .then((res) => res.json())
+      .then((apps) => {
+        const match = apps.find((a) => a.id === id);
+        if (match) {
+          setApplication(match);
+          return fetch(`${BASE_URL}/listings/${match.listingId}`);
+        } else {
+          throw new Error('Application not found');
+        }
+      })
+      .then((res) => res.json())
+      .then(setListing)
+      .catch((err) => {
+        console.error(err);
+        setApplication(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id, userInfo]);
+
+  const updateStatus = (status: 'accepted' | 'rejected') => {
+    fetch(`${BASE_URL}/applications/${application.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    }).then(() => {
+      router.push('/Messages');
+    });
+  };
+
+  if (!userInfo) return <Text style={styles.error}>User not found</Text>;
+  if (loading) return <Text style={styles.error}>Loading...</Text>;
+  if (!application) return <Text style={styles.error}>Application not found</Text>;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -43,19 +77,17 @@ export default function ApplicationDetail() {
 
       {userInfo.role === 'owner' ? (
         <>
-          <Image source={{ uri: application.avatar }} style={styles.avatar} />
+          <Image source={{ uri: application.avatar || 'https://via.placeholder.com/100' }} style={styles.avatar} />
           <Text style={styles.name}>{application.name}</Text>
           <Text style={styles.role}>{application.service}</Text>
         </>
-      ) : (
-        listing && (
-          <>
-            <Image source={{ uri: listing.image }} style={styles.avatar} />
-            <Text style={styles.name}>{listing.title}</Text>
-            <Text style={styles.role}>{listing.breed}</Text>
-          </>
-        )
-      )}
+      ) : listing ? (
+        <>
+          <Image source={{ uri: listing.image || 'https://via.placeholder.com/100' }} style={styles.avatar} />
+          <Text style={styles.name}>{listing.title}</Text>
+          <Text style={styles.role}>{listing.breed}</Text>
+        </>
+      ) : null}
 
       <View style={styles.section}>
         <Text style={styles.heading}>Details</Text>
@@ -75,17 +107,23 @@ export default function ApplicationDetail() {
         <Text style={styles.heading}>About</Text>
         <Text style={styles.about}>
           {userInfo.role === 'owner'
-            ? `I'm a passionate dog lover with 5+ years of experience caring for dogs of all breeds and sizes. I offer a safe, loving environment where your furry friend will feel right at home.`
+            ? application.bio || 'No bio provided.'
             : listing?.about || 'No description provided.'}
         </Text>
       </View>
 
       {userInfo.role === 'owner' && (
         <View style={styles.buttonRow}>
-          <Pressable style={[styles.button, styles.accept]}>
+          <Pressable
+            style={[styles.button, styles.accept]}
+            onPress={() => updateStatus('accepted')}
+          >
             <Text style={styles.buttonText}>Accept</Text>
           </Pressable>
-          <Pressable style={[styles.button, styles.deny]}>
+          <Pressable
+            style={[styles.button, styles.deny]}
+            onPress={() => updateStatus('rejected')}
+          >
             <Text style={styles.buttonText}>Deny</Text>
           </Pressable>
         </View>
@@ -200,7 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E9E62',
   },
   deny: {
-    backgroundColor: '#ddd',
+    backgroundColor: '#d9534f',
   },
   buttonText: {
     color: '#fff',

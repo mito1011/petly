@@ -1,20 +1,31 @@
 // app/listing/[id].tsx
-import { dummyListings } from '@/data/dummyListing';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const BASE_URL = 'http://localhost:3000/api/v1';
 
 export default function ListingDetails() {
   const router = useRouter();
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const listingId = Array.isArray(id) ? id[0] : id;
-  const listing = dummyListings.find((item) => item.id === listingId);
-  console.log('listingId:', listingId);
-  console.log('dummyListings:', dummyListings.map(l => l.id));
 
-  if (!listing) {
-    return <Text style={styles.error}>Listing not found.</Text>;
-  }
+  const [listing, setListing] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!listingId) return;
+
+    fetch(`${BASE_URL}/listings/${listingId}`)
+      .then((res) => res.json())
+      .then((data) => setListing(data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [listingId]);
+
+  if (loading) return <Text style={styles.error}>Loading...</Text>;
+  if (!listing) return <Text style={styles.error}>Listing not found.</Text>;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -34,8 +45,8 @@ export default function ListingDetails() {
         <Text style={styles.title}>{listing.title}</Text>
       </View>
 
-      <Image source={{ uri: listing.image }} style={styles.image} />
-      
+      <Image source={{ uri: listing.image || 'https://via.placeholder.com/300' }} style={styles.image} />
+
       <View style={styles.section}>
         <Text style={styles.about}>About {listing.title}</Text>
         <Text style={styles.description}>{listing.about}</Text>
@@ -43,26 +54,21 @@ export default function ListingDetails() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Care Requirements</Text>
-
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Breed" value={listing.breed} />
           <Info label="Age" value={listing.age} />
         </View>
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Size" value={listing.size} />
         </View>
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Exercise" value={listing.exercise} />
           <Info label="Feeding" value={listing.feeding} />
         </View>
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Medication" value={listing.medication} />
         </View>
@@ -70,14 +76,14 @@ export default function ListingDetails() {
 
       <View style={styles.buttonContainer}>
         <Pressable style={[styles.button, styles.accept]}>
-                  <Text style={styles.buttonText}>Book Now</Text>
+          <Text style={styles.buttonText}>Book Now</Text>
         </Pressable>
       </View>
     </ScrollView>
   );
 }
 
-function Info({ label, value }) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ flexBasis: '50%', marginVertical: 8 }}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -137,11 +143,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
   infoLabel: {
     fontSize: 12,
     color: '#888',
@@ -152,14 +153,14 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 30,
-  }, 
+  },
   button: {
     flex: 1,
     padding: 12,
     marginHorizontal: 6,
     borderRadius: 20,
     alignItems: 'center',
-    backgroundColor: '#1E9E62'
+    backgroundColor: '#1E9E62',
   },
   buttonText: {
     color: '#fff',
