@@ -6,7 +6,8 @@ import ListingCard from '../../components/ListingCard';
 import SearchBar from '../../components/SearchBar';
 import TagSelector from '../../components/TagSelector';
 import { useUserRole } from '../../context/UserRoleContext';
-import { dummyListings } from '../../data/dummyListing'; // Lokale Dummy-Daten
+import { dummyCaretakers } from '../../data/dummyCaretakers'; // 👈 Sitters!
+import { dummyListings } from '../../data/dummyListing';
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -18,33 +19,28 @@ export default function HomeScreen() {
   const [backendListings, setBackendListings] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const animalTypeTags = ['Dogs', 'Cats', 'Exotic', 'Other'];
+  const animalTypeTags = ['Dogs', 'Cats', 'Other'];
 
   useFocusEffect(
     useCallback(() => {
-      if (!userInfo) return;
+      if (!userInfo || userInfo.role !== 'sitter') return;
 
       setLoading(true);
-      console.log('🏠 Home fokussiert – Lade Backend-Daten ...');
-
       fetch(`${BASE_URL}/listings`)
         .then((res) => res.json())
         .then((data) => {
-          console.log('✅ Backend-Daten geladen:', data);
+          console.log('✅ Backend-Listings:', data);
           setBackendListings(data);
         })
         .catch((err) => {
           console.error('❌ Fehler beim Laden der Listings:', err);
-          setBackendListings([]); // trotzdem Dummy-Daten anzeigen
+          setBackendListings([]);
         })
         .finally(() => {
           setLoading(false);
         });
     }, [userInfo])
   );
-
-  // Kombinierte Listings
-  const allListings = [...backendListings, ...dummyListings];
 
   const filterItems = (items: any[]) => {
     return items.filter((item) => {
@@ -64,7 +60,9 @@ export default function HomeScreen() {
     });
   };
 
+  const allListings = [...backendListings, ...dummyListings];
   const filteredListings = filterItems(allListings);
+  const filteredSitters = filterItems(dummyCaretakers); // Nur lokal
 
   if (!userInfo) {
     return <Text style={{ padding: 20 }}>User not found</Text>;
@@ -95,26 +93,36 @@ export default function HomeScreen() {
         }
       />
 
-      {loading && <Text style={{ marginTop: 20 }}>Loading listings...</Text>}
+      {loading && userInfo.role === 'sitter' && (
+        <Text style={{ marginTop: 20 }}>Loading listings...</Text>
+      )}
 
-      {!loading && userInfo.role === 'sitter' && (
+      {userInfo.role === 'sitter' && (
         <>
           <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
             Pets Near You
           </Text>
           {filteredListings.map((listing, index) => (
-            <ListingCard key={`${listing.id}-${listing.ownerId || index}`} listing={listing} />
+            <ListingCard
+              key={`${listing.id}-${index}`}
+              listing={listing}
+              from="home"
+            />
           ))}
         </>
       )}
 
-      {!loading && userInfo.role === 'owner' && (
+      {userInfo.role === 'owner' && (
         <>
           <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
             Sitters Near You
           </Text>
-          {filteredListings.map((listing, index) => (
-            <ListingCard key={`${listing.id}-${listing.ownerId || index}`} listing={listing} />
+          {filteredSitters.map((sitter, index) => (
+            <ListingCard
+              key={`${sitter.id}-${index}`}
+              listing={sitter}
+              from="home"
+            />
           ))}
         </>
       )}

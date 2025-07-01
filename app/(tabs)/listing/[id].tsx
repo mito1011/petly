@@ -1,8 +1,18 @@
-// app/listing/[id].tsx
+import { useUserRole } from '@/context/UserRoleContext';
+import { dummyListings } from '@/data/dummyListing';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -10,6 +20,7 @@ export default function ListingDetails() {
   const router = useRouter();
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const listingId = Array.isArray(id) ? id[0] : id;
+  const { userInfo } = useUserRole();
 
   const [listing, setListing] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,12 +28,49 @@ export default function ListingDetails() {
   useEffect(() => {
     if (!listingId) return;
 
-    fetch(`${BASE_URL}/listings/${listingId}`)
-      .then((res) => res.json())
-      .then((data) => setListing(data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const fetchListing = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/listings/${listingId}`);
+        if (!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        setListing(data);
+      } catch (err) {
+        const fallback = dummyListings.find((l) => String(l.id) === String(listingId));
+        setListing(fallback || null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListing();
   }, [listingId]);
+
+  const handleBookNow = async () => {
+    if (!userInfo || userInfo.role !== 'sitter') {
+      Alert.alert('Not allowed', 'Only sitters can apply.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/listings/${listing.id}/applications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sitterId: userInfo.userId,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Application failed');
+
+      const result = await res.json();
+      console.log('✅ Bewerbung erstellt:', result);
+      Alert.alert('Success', 'Application submitted!');
+      router.push('/Messages');
+    } catch (err) {
+      console.error('❌ Fehler bei Buchung:', err);
+      Alert.alert('Fehler', 'Bewerbung konnte nicht gesendet werden.');
+    }
+  };
 
   if (loading) return <Text style={styles.error}>Loading...</Text>;
   if (!listing) return <Text style={styles.error}>Listing not found.</Text>;
@@ -49,7 +97,7 @@ export default function ListingDetails() {
 
       <View style={styles.section}>
         <Text style={styles.about}>About {listing.title}</Text>
-        <Text style={styles.description}>{listing.about}</Text>
+        <Text style={styles.description}>{listing.about || listing.description}</Text>
       </View>
 
       <View style={styles.section}>
@@ -74,16 +122,18 @@ export default function ListingDetails() {
         </View>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Pressable style={[styles.button, styles.accept]}>
-          <Text style={styles.buttonText}>Book Now</Text>
-        </Pressable>
-      </View>
+      {userInfo?.role === 'sitter' && from !== 'messages' &&(
+        <View style={styles.buttonContainer}>
+          <Pressable style={[styles.button, styles.accept]} onPress={handleBookNow}>
+            <Text style={styles.buttonText}>Book Now</Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({ label, value }: { label: string; value: any }) {
   return (
     <View style={{ flexBasis: '50%', marginVertical: 8 }}>
       <Text style={styles.infoLabel}>{label}</Text>
