@@ -20,9 +20,10 @@ const imageMap = {
   Cats: 'https://images.pexels.com/photos/1276553/pexels-photo-1276553.jpeg',
   Other:
     'https://www.shutterstock.com/image-photo/row-five-common-small-domestic-260nw-394830724.jpg',
+  Exotic: 'https://media.istockphoto.com/id/495292808/photo/colorful-cute-toucan-tropical-bird-brazilian-amazon-blurred-green-background.jpg?s=612x612&w=0&k=20&c=5B5wcwa35ciXxbZEOZ0_dJjqZFmnMMl2__4V2ud4sZY=',
 };
 
-const animalTypeOptions = ['Dogs', 'Cats', 'Other'];
+const animalTypeOptions = ['Dogs', 'Cats', 'Exotic', 'Other'];
 const tagOptions = ['Walks', 'Daycare', 'Feeding', 'Training', 'Overnight'];
 const sizeOptions = ['Small', 'Medium', 'Large'];
 
