@@ -1,6 +1,7 @@
-// app/application/[id].tsx
 import { useUserRole } from '@/context/UserRoleContext';
-import { Ionicons } from '@expo/vector-icons';
+import { dummyApplications } from '@/data/dummyApplications';
+import { dummyListings } from '@/data/dummyListing';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -20,8 +21,8 @@ export default function ApplicationDetail() {
   const { id } = useLocalSearchParams();
   const { userInfo } = useUserRole();
 
-  const [application, setApplication] = useState<any | null>(null);
-  const [listing, setListing] = useState<any | null>(null);
+  const [application, setApplication] = useState(null);
+  const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const handleBack = () => {
@@ -31,35 +32,83 @@ export default function ApplicationDetail() {
   useEffect(() => {
     if (!id || !userInfo) return;
 
-    // hole alle Bewerbungen zu diesem Listing und finde die passende Bewerbung per ID
-    fetch(`${BASE_URL}/sitters/${userInfo.userId}/applications`)
-      .then((res) => res.json())
-      .then((apps) => {
-        const match = apps.find((a) => a.id === id);
-        if (match) {
-          setApplication(match);
-          return fetch(`${BASE_URL}/listings/${match.listingId}`);
-        } else {
-          throw new Error('Application not found');
+    const fetchFromBackend = async () => {
+      try {
+        let allApps = [];
+
+        if (userInfo.role === 'sitter') {
+          const res = await fetch(`${BASE_URL}/sitters/${userInfo.userId}/applications`);
+          allApps = await res.json();
+        } else if (userInfo.role === 'owner') {
+          const listingRes = await fetch(`${BASE_URL}/listings/owner/${userInfo.userId}`);
+          const listings = await listingRes.json();
+
+          const appsByListing = await Promise.all(
+            listings.map((l) =>
+              fetch(`${BASE_URL}/listings/${l.id}/applications`).then((res) => res.json())
+            )
+          );
+          allApps = appsByListing.flat();
         }
-      })
-      .then((res) => res.json())
-      .then(setListing)
-      .catch((err) => {
-        console.error(err);
-        setApplication(null);
-      })
-      .finally(() => setLoading(false));
+
+        const combinedApps = [...allApps, ...dummyApplications];
+        const app = combinedApps.find((a) => String(a.id) === String(id));
+        if (!app) throw new Error('Application not found');
+        setApplication(app);
+
+        const listingRes = await fetch(`${BASE_URL}/listings/${app.listingId}`);
+        const listingData = await listingRes.json();
+        const combinedListing = listingData || dummyListings.find((l) => l.id === app.listingId);
+
+        setListing(combinedListing);
+      } catch (err) {
+        console.error('❌ Fehler beim Laden:', err);
+
+        const fallbackApp = dummyApplications.find((a) => String(a.id) === String(id));
+        setApplication(fallbackApp);
+        setListing(dummyListings.find((l) => l.id === fallbackApp?.listingId));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFromBackend();
   }, [id, userInfo]);
 
-  const updateStatus = (status: 'accepted' | 'rejected') => {
-    fetch(`${BASE_URL}/applications/${application.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    }).then(() => {
-      router.push('/Messages');
-    });
+  const updateStatus = async (status: 'accepted' | 'rejected') => {
+    if (!application || !listing) return;
+
+    try {
+      let appId = application.id;
+      const isDummy = typeof appId === 'string' && appId.startsWith('a');
+
+      if (isDummy) {
+        const res = await fetch(`${BASE_URL}/listings/${listing.id}/applications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sitterId: application.sitterId }),
+        });
+
+        if (!res.ok) throw new Error('Erstellen der Bewerbung fehlgeschlagen');
+        const created = await res.json();
+        appId = created.id;
+        console.log('✅ Dummy-Bewerbung im Backend erstellt:', created);
+      }
+
+      const patchRes = await fetch(`${BASE_URL}/applications/${appId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!patchRes.ok) throw new Error('Status konnte nicht gesetzt werden');
+      const updated = await patchRes.json();
+
+      setApplication({ ...application, id: appId, status });
+      console.log('✅ Bewerbung aktualisiert:', updated);
+    } catch (err) {
+      console.error('❌ Fehler beim Bewerbungs-Update:', err);
+    }
   };
 
   if (!userInfo) return <Text style={styles.error}>User not found</Text>;
@@ -89,6 +138,10 @@ export default function ApplicationDetail() {
         </>
       ) : null}
 
+      <Text style={{ textAlign: 'center', color: '#888', marginBottom: 12 }}>
+        Status: {application.status || 'pending'}
+      </Text>
+
       <View style={styles.section}>
         <Text style={styles.heading}>Details</Text>
         <View style={styles.separator} />
@@ -114,16 +167,10 @@ export default function ApplicationDetail() {
 
       {userInfo.role === 'owner' && (
         <View style={styles.buttonRow}>
-          <Pressable
-            style={[styles.button, styles.accept]}
-            onPress={() => updateStatus('accepted')}
-          >
+          <Pressable style={[styles.button, styles.accept]} onPress={() => updateStatus('accepted')}>
             <Text style={styles.buttonText}>Accept</Text>
           </Pressable>
-          <Pressable
-            style={[styles.button, styles.deny]}
-            onPress={() => updateStatus('rejected')}
-          >
+          <Pressable style={[styles.button, styles.deny]} onPress={() => updateStatus('rejected')}>
             <Text style={styles.buttonText}>Deny</Text>
           </Pressable>
         </View>
@@ -186,7 +233,7 @@ const styles = StyleSheet.create({
   role: {
     textAlign: 'center',
     color: '#666',
-    marginBottom: 24,
+    marginBottom: 12,
   },
   section: {
     marginBottom: 24,

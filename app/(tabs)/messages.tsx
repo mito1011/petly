@@ -1,7 +1,9 @@
-// app/(tabs)/messages.tsx
 import { useUserRole } from '@/context/UserRoleContext';
+import { dummyApplications } from '@/data/dummyApplications';
+import { dummyListings } from '@/data/dummyListing';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -16,112 +18,172 @@ const BASE_URL = 'http://localhost:3000/api/v1';
 export default function MessagesScreen() {
   const { userInfo } = useUserRole();
   const router = useRouter();
-  const [pendingApps, setPendingApps] = useState([]);
-  const [acceptedApps, setAcceptedApps] = useState([]);
-  const [appliedListings, setAppliedListings] = useState([]);
+  const [backendApplications, setBackendApplications] = useState([]);
+  const [backendListings, setBackendListings] = useState([]);
 
-  useEffect(() => {
-    if (!userInfo) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!userInfo) return;
 
-    if (userInfo.role === 'owner') {
-      // Schritt 1: Lade Listings des Owners
-      fetch(`${BASE_URL}/listings/owner/${userInfo.userId}`)
-        .then((res) => res.json())
-        .then((listings) => {
-          // Schritt 2: Für jedes Listing Bewerbungen laden
-          Promise.all(
-            listings.map((listing) =>
-              fetch(`${BASE_URL}/listings/${listing.id}/applications`).then((res) =>
-                res.json()
+      if (userInfo.role === 'owner') {
+        fetch(`${BASE_URL}/listings/owner/${userInfo.userId}`)
+          .then((res) => res.json())
+          .then((listings) => {
+            setBackendListings(listings);
+
+            return Promise.all(
+              listings.map((l) =>
+                fetch(`${BASE_URL}/listings/${l.id}/applications`).then((res) =>
+                  res.json()
+                )
               )
-            )
-          ).then((allApplications) => {
-            const all = allApplications.flat();
-            setPendingApps(all.filter((app) => app.status === 'pending'));
-            setAcceptedApps(all.filter((app) => app.status === 'accepted'));
-          });
-        })
-        .catch(console.error);
-    } else if (userInfo.role === 'sitter') {
-      // Bewerbungen des Sitters laden
-      fetch(`${BASE_URL}/sitters/${userInfo.userId}/applications`)
-        .then((res) => res.json())
-        .then((applications) => {
-          // Optional: zugehörige Listings laden
-          Promise.all(
-            applications.map((app) =>
-              fetch(`${BASE_URL}/listings/${app.listingId}`).then((res) =>
-                res.json()
+            );
+          })
+          .then((apps) => {
+            setBackendApplications(apps.flat());
+          })
+          .catch(console.error);
+      } else if (userInfo.role === 'sitter') {
+        fetch(`${BASE_URL}/sitters/${userInfo.userId}/applications`)
+          .then((res) => res.json())
+          .then((apps) => {
+            setBackendApplications(apps);
+
+            return Promise.all(
+              apps.map((a) =>
+                fetch(`${BASE_URL}/listings/${a.listingId}`).then((res) =>
+                  res.json()
+                )
               )
-            )
-          ).then(setAppliedListings);
-        })
-        .catch(console.error);
-    }
-  }, [userInfo]);
-
-  const renderAppItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => router.push(`/application/${item.id}`)}
-    >
-      <Image source={{ uri: item.avatar || 'https://via.placeholder.com/48' }} style={styles.avatar} />
-      <View>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.sub}>{item.service} · {item.date}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const renderListingItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() =>
-        router.push({ pathname: `/listing/${item.id}`, params: { from: 'messages' } })
+            );
+          })
+          .then((listings) => {
+            setBackendListings(listings);
+          })
+          .catch(console.error);
       }
-    >
-      <Image source={{ uri: item.image || 'https://via.placeholder.com/48' }} style={styles.avatar} />
-      <View>
-        <Text style={styles.name}>{item.title}</Text>
-        <Text style={styles.sub}>{(item.tags || []).join(', ')}</Text>
-      </View>
-    </TouchableOpacity>
+    }, [userInfo])
   );
 
   if (!userInfo) {
     return <Text style={{ padding: 20 }}>User not found</Text>;
   }
 
-  return (
-    <View style={styles.container}>
-      {userInfo.role === 'owner' ? (
-        <>
-          <Text style={styles.header}>Applications</Text>
-          <Text style={styles.label}>Pending</Text>
-          <FlatList
-            data={pendingApps}
-            renderItem={renderAppItem}
-            keyExtractor={(item) => item.id}
-          />
-          <Text style={styles.label}>Accepted</Text>
-          <FlatList
-            data={acceptedApps}
-            renderItem={renderAppItem}
-            keyExtractor={(item) => item.id}
-          />
-        </>
-      ) : (
-        <>
-          <Text style={styles.header}>Your Applications</Text>
-          <FlatList
-            data={appliedListings}
-            renderItem={renderListingItem}
-            keyExtractor={(item) => item.id}
-          />
-        </>
-      )}
-    </View>
-  );
+  const allListings = [...backendListings, ...dummyListings];
+
+  // 👇 Nur Dummy-Bewerbungen behalten, die nicht schon im Backend existieren
+  const filteredApplications = [
+    ...backendApplications,
+    ...dummyApplications.filter((dummy) =>
+      !backendApplications.some(
+        (real) =>
+          String(real.listingId) === String(dummy.listingId) &&
+          String(real.sitterId) === String(dummy.sitterId)
+      )
+    ),
+  ];
+
+  const getOwnerId = (listingId) => {
+    const match = allListings.find(
+      (l) => String(l.id) === String(listingId)
+    );
+    return match?.ownerId;
+  };
+
+  if (userInfo.role === 'owner') {
+    const pending = filteredApplications.filter(
+      (app) =>
+        app.status === 'pending' &&
+        String(getOwnerId(app.listingId)) === String(userInfo.userId)
+    );
+
+    const accepted = filteredApplications.filter(
+      (app) =>
+        app.status === 'accepted' &&
+        String(getOwnerId(app.listingId)) === String(userInfo.userId)
+    );
+
+    const renderAppItem = ({ item }) => (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => router.push(`/application/${item.id}`)}
+      >
+        <Image
+          source={{ uri: item.avatar || 'https://via.placeholder.com/48' }}
+          style={styles.avatar}
+        />
+        <View>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.sub}>
+            {item.service} · {item.date}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Applications</Text>
+        <Text style={styles.label}>Pending</Text>
+        <FlatList
+          data={pending}
+          renderItem={renderAppItem}
+          keyExtractor={(item) => String(item.id)}
+          ListEmptyComponent={<Text style={styles.sub}>No pending applications.</Text>}
+        />
+        <Text style={styles.label}>Accepted</Text>
+        <FlatList
+          data={accepted}
+          renderItem={renderAppItem}
+          keyExtractor={(item) => String(item.id)}
+          ListEmptyComponent={<Text style={styles.sub}>No accepted applications.</Text>}
+        />
+      </View>
+    );
+  } else {
+    const sitterApplications = filteredApplications.filter(
+      (app) => app.sitterId === userInfo.userId
+    );
+
+    const appliedListings = sitterApplications
+      .map((app) =>
+        allListings.find((l) => String(l.id) === String(app.listingId))
+      )
+      .filter(Boolean);
+
+    const renderListingItem = ({ item }) => (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() =>
+          router.push({
+            pathname: `/listing/${item.id}`,
+            params: { from: 'messages' },
+          })
+        }
+      >
+        <Image
+          source={{ uri: item.image || 'https://via.placeholder.com/48' }}
+          style={styles.avatar}
+        />
+        <View>
+          <Text style={styles.name}>{item.title}</Text>
+          <Text style={styles.sub}>{(item.tags || []).join(', ')}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Your Applications</Text>
+        <FlatList
+          data={appliedListings}
+          renderItem={renderListingItem}
+          keyExtractor={(item) => String(item.id)}
+          ListEmptyComponent={<Text style={styles.sub}>No applications yet.</Text>}
+        />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
