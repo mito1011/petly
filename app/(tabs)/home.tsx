@@ -2,7 +2,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import FeatureBanner from '../../components/FeatureBanner';
 import ListingCard from '../../components/ListingCard';
 import LiveTrackingCard from '../../components/LiveTrackingCard';
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const [backendListings, setBackendListings] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const animalTypeTags = ['Dogs', 'Cats', 'Other'];
+  const animalTypeTags = ['Dogs', 'Cats', 'Bird', 'Exotic', 'Other'];
 
   useFocusEffect(
     useCallback(() => {
