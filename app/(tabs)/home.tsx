@@ -1,5 +1,6 @@
 // app/(tabs)/home.tsx
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import FeatureBanner from '../../components/FeatureBanner';
@@ -15,6 +16,7 @@ const BASE_URL = 'http://localhost:3000/api/v1';
 
 export default function HomeScreen() {
   const { userInfo } = useUserRole();
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedAnimalTypes, setSelectedAnimalTypes] = useState<string[]>([]);
@@ -63,11 +65,7 @@ export default function HomeScreen() {
   };
 
   const handleFeatureBannerPress = () => {
-    Alert.alert(
-      "🚀 Live Pet Tracking",
-      "Get ready for real-time GPS tracking!\n\n• See your pet's route in real-time\n• Get walking statistics\n• Peace of mind while you're away\n\nComing soon to Petly!",
-      [{ text: "Awesome!" }]
-    );
+    router.push('/feature-preview');
   };
 
   const allListings = [...backendListings, ...dummyListings];
