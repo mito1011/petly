@@ -8,7 +8,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName = 'home';
-          if (route.name === 'home') iconName = 'home';
+          if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Post') iconName = 'add-circle';
           else if (route.name === 'Applications') iconName = 'chatbubbles';
           else if (route.name === 'Profile') iconName = 'person';
