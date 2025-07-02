@@ -10,7 +10,7 @@ export default function TabLayout() {
           let iconName = 'Home';
           if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Post') iconName = 'add-circle';
-          else if (route.name === 'Messages') iconName = 'chatbubbles';
+          else if (route.name === 'Applications') iconName = 'chatbubbles';
           else if (route.name === 'Profile') iconName = 'person';
 
           return <Ionicons name={iconName as any} size={size} color={color} />;
@@ -21,7 +21,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="Home" />
       <Tabs.Screen name="Post" />
-      <Tabs.Screen name="Messages" />
+      <Tabs.Screen name="Applications" />
       <Tabs.Screen name="Profile" />
 
       {/* 👇 Diese Screens nicht als Tab anzeigen */}
