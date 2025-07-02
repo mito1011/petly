@@ -1,6 +1,6 @@
 export const dummyListings = [
   {
-    id: '1',
+    id: '10',
     title: 'Luna',
     description: 'Friendly and playful, needs daily walks',
     rating: 4.8,
@@ -18,7 +18,7 @@ export const dummyListings = [
     appliedBy: ['sitter1', 'sitter2'],
   },
   {
-    id: '2',
+    id: '11',
     title: 'Milo',
     description: 'Independent but loves cuddles',
     rating: 4.5,
@@ -36,7 +36,7 @@ export const dummyListings = [
     appliedBy: ['sitter1'],
   },
   {
-    id: '3',
+    id: '12',
     title: 'Bella',
     description: 'Shy but sweet rabbit',
     rating: 4.9,
@@ -54,7 +54,7 @@ export const dummyListings = [
     appliedBy: ['sitter3'],
   },
   {
-    id: '4',
+    id: '13',
     title: 'Rocky',
     description: 'Energetic Husky, needs long walks',
     rating: 4.6,
@@ -72,7 +72,7 @@ export const dummyListings = [
     appliedBy: ['sitter2', 'sitter3'],
   },
   {
-    id: '5',
+    id: '14',
     title: 'Nala',
     description: 'Loving senior cat needs medication',
     rating: 4.7,

@@ -1,20 +1,79 @@
-// app/listing/[id].tsx
+import { useUserRole } from '@/context/UserRoleContext';
 import { dummyListings } from '@/data/dummyListing';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+const BASE_URL = 'http://localhost:3000/api/v1';
 
 export default function ListingDetails() {
   const router = useRouter();
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const listingId = Array.isArray(id) ? id[0] : id;
-  const listing = dummyListings.find((item) => item.id === listingId);
-  console.log('listingId:', listingId);
-  console.log('dummyListings:', dummyListings.map(l => l.id));
+  const { userInfo } = useUserRole();
 
-  if (!listing) {
-    return <Text style={styles.error}>Listing not found.</Text>;
-  }
+  const [listing, setListing] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!listingId) return;
+
+    const fetchListing = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/listings/${listingId}`);
+        if (!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        setListing(data);
+      } catch (err) {
+        const fallback = dummyListings.find((l) => String(l.id) === String(listingId));
+        setListing(fallback || null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListing();
+  }, [listingId]);
+
+  const handleBookNow = async () => {
+    if (!userInfo || userInfo.role !== 'sitter') {
+      Alert.alert('Not allowed', 'Only sitters can apply.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/listings/${listing.id}/applications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sitterId: userInfo.userId,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Application failed');
+
+      const result = await res.json();
+      console.log('✅ Bewerbung erstellt:', result);
+      Alert.alert('Success', 'Application submitted!');
+      router.push('/Messages');
+    } catch (err) {
+      console.error('❌ Fehler bei Buchung:', err);
+      Alert.alert('Fehler', 'Bewerbung konnte nicht gesendet werden.');
+    }
+  };
+
+  if (loading) return <Text style={styles.error}>Loading...</Text>;
+  if (!listing) return <Text style={styles.error}>Listing not found.</Text>;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -34,50 +93,47 @@ export default function ListingDetails() {
         <Text style={styles.title}>{listing.title}</Text>
       </View>
 
-      <Image source={{ uri: listing.image }} style={styles.image} />
-      
+      <Image source={{ uri: listing.image || 'https://via.placeholder.com/300' }} style={styles.image} />
+
       <View style={styles.section}>
         <Text style={styles.about}>About {listing.title}</Text>
-        <Text style={styles.description}>{listing.about}</Text>
+        <Text style={styles.description}>{listing.about || listing.description}</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Care Requirements</Text>
-
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Breed" value={listing.breed} />
           <Info label="Age" value={listing.age} />
         </View>
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Size" value={listing.size} />
         </View>
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Exercise" value={listing.exercise} />
           <Info label="Feeding" value={listing.feeding} />
         </View>
         <View style={styles.separator} />
-
         <View style={styles.row}>
           <Info label="Medication" value={listing.medication} />
         </View>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Pressable style={[styles.button, styles.accept]}>
-                  <Text style={styles.buttonText}>Book Now</Text>
-        </Pressable>
-      </View>
+      {userInfo?.role === 'sitter' && from !== 'messages' &&(
+        <View style={styles.buttonContainer}>
+          <Pressable style={[styles.button, styles.accept]} onPress={handleBookNow}>
+            <Text style={styles.buttonText}>Book Now</Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 }
 
-function Info({ label, value }) {
+function Info({ label, value }: { label: string; value: any }) {
   return (
     <View style={{ flexBasis: '50%', marginVertical: 8 }}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -137,11 +193,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
   infoLabel: {
     fontSize: 12,
     color: '#888',
@@ -152,14 +203,14 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 30,
-  }, 
+  },
   button: {
     flex: 1,
     padding: 12,
     marginHorizontal: 6,
     borderRadius: 20,
     alignItems: 'center',
-    backgroundColor: '#1E9E62'
+    backgroundColor: '#1E9E62',
   },
   buttonText: {
     color: '#fff',

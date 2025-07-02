@@ -1,5 +1,8 @@
+// app/(tabs)/post.tsx
+import { useUserRole } from '@/context/UserRoleContext';
 import React, { useState } from 'react';
 import {
+  Alert,
   Picker,
   Platform,
   ScrollView,
@@ -10,17 +13,24 @@ import {
   View,
 } from 'react-native';
 
+const BASE_URL = 'http://localhost:3000/api/v1';
+
 const imageMap = {
   Dogs: 'https://placedog.net/400/400?id=10',
   Cats: 'https://images.pexels.com/photos/1276553/pexels-photo-1276553.jpeg',
-  Other: 'https://www.shutterstock.com/image-photo/row-five-common-small-domestic-260nw-394830724.jpg',
+  Other:
+    'https://www.shutterstock.com/image-photo/row-five-common-small-domestic-260nw-394830724.jpg',
+  Exotic: 'https://media.istockphoto.com/id/495292808/photo/colorful-cute-toucan-tropical-bird-brazilian-amazon-blurred-green-background.jpg?s=612x612&w=0&k=20&c=5B5wcwa35ciXxbZEOZ0_dJjqZFmnMMl2__4V2ud4sZY=',
 };
 
-const animalTypeOptions = ['Dogs', 'Cats', 'Other'];
+const animalTypeOptions = ['Dogs', 'Cats', 'Exotic', 'Other'];
 const tagOptions = ['Walks', 'Daycare', 'Feeding', 'Training', 'Overnight'];
 const sizeOptions = ['Small', 'Medium', 'Large'];
 
 export default function PostScreen() {
+  const { userInfo } = useUserRole();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -48,7 +58,54 @@ export default function PostScreen() {
     setForm({ ...form, [field]: value });
   };
 
-  const getImageForAnimal = () => imageMap[form.animalTypes];
+  const getImageForAnimal = () => imageMap[form.animalTypes] || imageMap.Other;
+
+  const handleSubmit = async () => {
+    if (!userInfo) return Alert.alert('Error', 'User not found');
+
+    const payload = {
+      ...form,
+      image: getImageForAnimal(),
+      ownerId: userInfo.userId,
+    };
+
+    console.log('📤 Sende neues Listing:', payload);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${BASE_URL}/listings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Fehler beim Erstellen');
+      }
+
+      const created = await response.json();
+      console.log('✅ Listing erstellt:', created);
+      Alert.alert('Erfolg', 'Listing wurde erstellt!');
+      setForm({
+        title: '',
+        description: '',
+        tags: [],
+        animalTypes: 'Dogs',
+        about: '',
+        breed: '',
+        age: '',
+        size: 'Medium',
+        exercise: '',
+        feeding: '',
+        medication: '',
+      });
+    } catch (error) {
+      console.error('❌ Fehler beim Speichern:', error);
+      Alert.alert('Fehler', 'Konnte das Listing nicht speichern');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -77,10 +134,7 @@ export default function PostScreen() {
           {tagOptions.map((tag) => (
             <TouchableOpacity
               key={tag}
-              style={[
-                styles.tag,
-                form.tags.includes(tag) && styles.tagSelected,
-              ]}
+              style={[styles.tag, form.tags.includes(tag) && styles.tagSelected]}
               onPress={() => toggleTag(tag)}
             >
               <Text
@@ -106,8 +160,12 @@ export default function PostScreen() {
       <Text style={styles.imagePreviewNote}>📸 Image Preview for {form.animalTypes}:</Text>
       <Text style={styles.imageURL}>{getImageForAnimal()}</Text>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Save Listing</Text>
+      <TouchableOpacity
+        style={[styles.button, isSubmitting && { opacity: 0.6 }]}
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+      >
+        <Text style={styles.buttonText}>{isSubmitting ? 'Saving...' : 'Save Listing'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

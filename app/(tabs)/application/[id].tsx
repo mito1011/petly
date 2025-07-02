@@ -3,6 +3,7 @@ import { dummyApplications } from '@/data/dummyApplications';
 import { dummyListings } from '@/data/dummyListing';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -13,24 +14,106 @@ import {
   View,
 } from 'react-native';
 
+const BASE_URL = 'http://localhost:3000/api/v1';
+
 export default function ApplicationDetail() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { userInfo } = useUserRole();
 
-  const application = dummyApplications.find((a) => a.id === id);
-
-  if (!application) return <Text style={styles.error}>Application not found</Text>;
-
-  const listing = dummyListings.find((l) => l.id === application.listingId);
+  const [application, setApplication] = useState(null);
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const handleBack = () => {
     router.push('/Messages');
   };
 
-  if (!userInfo) {
-    return <Text style={styles.error}>User not found</Text>;
-  }
+  useEffect(() => {
+    if (!id || !userInfo) return;
+
+    const fetchFromBackend = async () => {
+      try {
+        let allApps = [];
+
+        if (userInfo.role === 'sitter') {
+          const res = await fetch(`${BASE_URL}/sitters/${userInfo.userId}/applications`);
+          allApps = await res.json();
+        } else if (userInfo.role === 'owner') {
+          const listingRes = await fetch(`${BASE_URL}/listings/owner/${userInfo.userId}`);
+          const listings = await listingRes.json();
+
+          const appsByListing = await Promise.all(
+            listings.map((l) =>
+              fetch(`${BASE_URL}/listings/${l.id}/applications`).then((res) => res.json())
+            )
+          );
+          allApps = appsByListing.flat();
+        }
+
+        const combinedApps = [...allApps, ...dummyApplications];
+        const app = combinedApps.find((a) => String(a.id) === String(id));
+        if (!app) throw new Error('Application not found');
+        setApplication(app);
+
+        const listingRes = await fetch(`${BASE_URL}/listings/${app.listingId}`);
+        const listingData = await listingRes.json();
+        const combinedListing = listingData || dummyListings.find((l) => l.id === app.listingId);
+
+        setListing(combinedListing);
+      } catch (err) {
+        console.error('❌ Fehler beim Laden:', err);
+
+        const fallbackApp = dummyApplications.find((a) => String(a.id) === String(id));
+        setApplication(fallbackApp);
+        setListing(dummyListings.find((l) => l.id === fallbackApp?.listingId));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFromBackend();
+  }, [id, userInfo]);
+
+  const updateStatus = async (status: 'accepted' | 'rejected') => {
+    if (!application || !listing) return;
+
+    try {
+      let appId = application.id;
+      const isDummy = typeof appId === 'string' && appId.startsWith('a');
+
+      if (isDummy) {
+        const res = await fetch(`${BASE_URL}/listings/${listing.id}/applications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sitterId: application.sitterId }),
+        });
+
+        if (!res.ok) throw new Error('Erstellen der Bewerbung fehlgeschlagen');
+        const created = await res.json();
+        appId = created.id;
+        console.log('✅ Dummy-Bewerbung im Backend erstellt:', created);
+      }
+
+      const patchRes = await fetch(`${BASE_URL}/applications/${appId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!patchRes.ok) throw new Error('Status konnte nicht gesetzt werden');
+      const updated = await patchRes.json();
+
+      setApplication({ ...application, id: appId, status });
+      console.log('✅ Bewerbung aktualisiert:', updated);
+    } catch (err) {
+      console.error('❌ Fehler beim Bewerbungs-Update:', err);
+    }
+  };
+
+  if (!userInfo) return <Text style={styles.error}>User not found</Text>;
+  if (loading) return <Text style={styles.error}>Loading...</Text>;
+  if (!application) return <Text style={styles.error}>Application not found</Text>;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -43,19 +126,21 @@ export default function ApplicationDetail() {
 
       {userInfo.role === 'owner' ? (
         <>
-          <Image source={{ uri: application.avatar }} style={styles.avatar} />
+          <Image source={{ uri: application.avatar || 'https://via.placeholder.com/100' }} style={styles.avatar} />
           <Text style={styles.name}>{application.name}</Text>
           <Text style={styles.role}>{application.service}</Text>
         </>
-      ) : (
-        listing && (
-          <>
-            <Image source={{ uri: listing.image }} style={styles.avatar} />
-            <Text style={styles.name}>{listing.title}</Text>
-            <Text style={styles.role}>{listing.breed}</Text>
-          </>
-        )
-      )}
+      ) : listing ? (
+        <>
+          <Image source={{ uri: listing.image || 'https://via.placeholder.com/100' }} style={styles.avatar} />
+          <Text style={styles.name}>{listing.title}</Text>
+          <Text style={styles.role}>{listing.breed}</Text>
+        </>
+      ) : null}
+
+      <Text style={{ textAlign: 'center', color: '#888', marginBottom: 12 }}>
+        Status: {application.status || 'pending'}
+      </Text>
 
       <View style={styles.section}>
         <Text style={styles.heading}>Details</Text>
@@ -75,17 +160,17 @@ export default function ApplicationDetail() {
         <Text style={styles.heading}>About</Text>
         <Text style={styles.about}>
           {userInfo.role === 'owner'
-            ? `I'm a passionate dog lover with 5+ years of experience caring for dogs of all breeds and sizes. I offer a safe, loving environment where your furry friend will feel right at home.`
+            ? application.bio || 'No bio provided.'
             : listing?.about || 'No description provided.'}
         </Text>
       </View>
 
       {userInfo.role === 'owner' && (
         <View style={styles.buttonRow}>
-          <Pressable style={[styles.button, styles.accept]}>
+          <Pressable style={[styles.button, styles.accept]} onPress={() => updateStatus('accepted')}>
             <Text style={styles.buttonText}>Accept</Text>
           </Pressable>
-          <Pressable style={[styles.button, styles.deny]}>
+          <Pressable style={[styles.button, styles.deny]} onPress={() => updateStatus('rejected')}>
             <Text style={styles.buttonText}>Deny</Text>
           </Pressable>
         </View>
@@ -148,7 +233,7 @@ const styles = StyleSheet.create({
   role: {
     textAlign: 'center',
     color: '#666',
-    marginBottom: 24,
+    marginBottom: 12,
   },
   section: {
     marginBottom: 24,
@@ -200,7 +285,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E9E62',
   },
   deny: {
-    backgroundColor: '#ddd',
+    backgroundColor: '#d9534f',
   },
   buttonText: {
     color: '#fff',
