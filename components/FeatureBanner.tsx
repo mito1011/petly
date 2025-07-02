@@ -18,7 +18,6 @@ export default function FeatureBanner({ onPress }: FeatureBannerProps) {
           <Text style={styles.title}>🚀 NEW: Live Pet Tracking</Text>
           <Text style={styles.subtitle}>Track your pet's walks in real-time • Coming Soon!</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color="#fff" />
       </View>
     </TouchableOpacity>
   );

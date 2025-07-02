@@ -9,12 +9,18 @@ export default function LiveTrackingCard() {
 
   // Mock timer für Demo
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timeInterval = setInterval(() => {
       setWalkTime(prev => prev + 1);
-      setDistance(prev => prev + 0.01);
     }, 1000);
 
-    return () => clearInterval(interval);
+    const distanceInterval = setInterval(() => {
+      setDistance(prev => prev + 0.006); // Viel langsamer: nur 0.002km alle 3 Sekunden
+    }, 3000);
+
+    return () => {
+      clearInterval(timeInterval);
+      clearInterval(distanceInterval);
+    };
   }, []);
 
   const formatTime = (seconds: number) => {

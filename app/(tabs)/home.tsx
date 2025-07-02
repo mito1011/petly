@@ -83,8 +83,8 @@ export default function HomeScreen() {
       {/* Feature Banner */}
       <FeatureBanner onPress={handleFeatureBannerPress} />
       
-      {/* Live Tracking Demo - nur für Sitter */}
-      {userInfo.role === 'sitter' && <LiveTrackingCard />}
+      {/* Live Tracking Demo - nur für Owner */}
+      {userInfo.role === 'owner' && <LiveTrackingCard />}
         <View style={{ padding: 16 }}>
         <SearchBar value={query} onChange={setQuery} />
         <TagSelector
