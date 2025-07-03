@@ -26,14 +26,14 @@ const imageMap = {
 };
 
 const animalTypeOptions = [
-  { label: 'Hund', value: 'dog' },
-  { label: 'Katze', value: 'cat' },
-  { label: 'Vogel', value: 'bird' },
-  { label: 'Exotisch', value: 'exotic' },
-  { label: 'Sonstiges', value: 'other' },
+  { label: 'Dog', value: 'dog' },
+  { label: 'Cat', value: 'cat' },
+  { label: 'Bird', value: 'bird' },
+  { label: 'Exotic', value: 'exotic' },
+  { label: 'Other', value: 'other' },
 ];
 
-const sizeOptions = ['Klein', 'Mittel', 'Groß'];
+const sizeOptions = ['Small', 'Medium', 'Large'];
 
 const tagOptions = [
   { label: 'House Sitting', value: 'house-sitting' },
@@ -61,7 +61,7 @@ export default function PostScreen() {
     price: '',
     breed: '',
     age: '',
-    size: 'Mittel',
+    size: 'Medium',
     feeding: '',
     medication: '',
   });
@@ -150,7 +150,7 @@ export default function PostScreen() {
         price: '',
         breed: '',
         age: '',
-        size: 'Mittel',
+        size: 'Medium',
         feeding: '',
         medication: '',
       });
@@ -312,7 +312,7 @@ export default function PostScreen() {
           onPress={() => handleChange('sitterVerified', !form.sitterVerified)}
         >
           <Text style={[styles.tagText, form.sitterVerified && styles.tagTextSelected]}>
-            {form.sitterVerified ? 'Ja' : 'Nein'}
+            {form.sitterVerified ? 'Yes' : 'No'}
           </Text>
         </TouchableOpacity>
       </View>
