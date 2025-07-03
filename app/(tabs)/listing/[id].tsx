@@ -1,5 +1,6 @@
 import { useUserRole } from '@/context/UserRoleContext';
 import { dummyListings } from '@/data/dummyListing';
+import { getAnimalImageUrl } from '@/data/dummyURL'; // Import ergänzen
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ const BASE_URL = 'http://localhost:3000/api/v1';
 
 export default function ListingDetails() {
   const router = useRouter();
-  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { id, from, image: navImage } = useLocalSearchParams<{ id: string; from?: string; image?: string }>();
   const listingId = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUserRole();
 
@@ -80,7 +81,7 @@ export default function ListingDetails() {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
-            if (from === 'Home') {
+            if (from === 'Home' || !from) {
               router.push('/Home');
             } else {
               router.push('/Applications');
@@ -93,7 +94,30 @@ export default function ListingDetails() {
         <Text style={styles.title}>{listing.title}</Text>
       </View>
 
-      <Image source={{ uri: listing.image || 'https://via.placeholder.com/300' }} style={styles.image} />
+      <Image
+        source={{
+          uri:
+            // 1. Bild aus Navigation verwenden, falls vorhanden
+            (typeof navImage === 'string' && navImage) ||
+            // 2. Sonst wie gehabt
+            listing.image ||
+            getAnimalImageUrl(
+              listing.animalTypes?.[0] ||
+                (listing.species === 'dog'
+                  ? 'Dogs'
+                  : listing.species === 'cat'
+                  ? 'Cats'
+                  : listing.species === 'bird'
+                  ? 'Birds'
+                  : listing.species === 'exotic'
+                  ? 'Exotic'
+                  : 'Other'),
+              listing.id
+            ) ||
+            'https://via.placeholder.com/300',
+        }}
+        style={styles.image}
+      />
 
       <View style={styles.section}>
         <Text style={styles.about}>About {listing.title}</Text>
@@ -157,24 +181,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    height: 40,
+    height: 60,
+    backgroundColor: '#fff',
+    zIndex: 2,
+    flexDirection: 'row', // NEU: horizontal anordnen
   },
   backButton: {
     position: 'absolute',
     left: 0,
     paddingHorizontal: 10,
+    zIndex: 3,
+    height: '100%',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'center',
+    paddingLeft: 32, // Platz für den Pfeil
   },
   image: {
     width: '100%',
     height: 250,
     borderRadius: 10,
     marginBottom: 20,
+    marginTop: 10, // Platz für Header
   },
   section: {
     marginBottom: 24,

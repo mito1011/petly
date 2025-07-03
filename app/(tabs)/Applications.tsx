@@ -2,6 +2,7 @@ import { useUserRole } from '@/context/UserRoleContext';
 // import { dummyApplications } from '@/data/dummyApplications'; // entfernt
 import { dummyListings } from '@/data/dummyListing';
 import { dummyUsers } from '@/data/dummyUsers';
+import { getAnimalImageUrl } from '@/data/dummyURL'; // Import ergänzen
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -82,9 +83,24 @@ export default function MessagesScreen() {
   if (userInfo.role === 'owner') {
     // 1. Zeige Liste der eigenen Inserate
     if (!selectedListingId) {
-      const myListings = allListings.filter(
-        (l) => String(l.ownerId) === String(userInfo.userId)
-      );
+      const myListings = allListings
+        .filter((l) => String(l.ownerId) === String(userInfo.userId))
+        .map((listing) => {
+          let animalType =
+            listing.species === 'dog'
+              ? 'Dogs'
+              : listing.species === 'cat'
+              ? 'Cats'
+              : listing.species === 'bird'
+              ? 'Birds'
+              : listing.species === 'exotic'
+              ? 'Exotic'
+              : 'Other';
+          return {
+            ...listing,
+            image: listing.image || getAnimalImageUrl(animalType, listing.id),
+          };
+        });
 
       // Hilfsfunktion: Hat das Inserat eine angenommene Bewerbung?
       const isClosed = (listingId: string) =>
@@ -104,7 +120,7 @@ export default function MessagesScreen() {
           onPress={() => setSelectedListingId(item.id)}
         >
           <Image
-            source={{ uri: item.image || item.avatar || 'https://via.placeholder.com/48' }}
+            source={{ uri: item.image || 'https://via.placeholder.com/48' }}
             style={styles.avatar}
           />
           <View>

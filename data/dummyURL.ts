@@ -1,18 +1,20 @@
 const imageMap = {
   Dogs: [
-    'https://placedog.net/400/400?id=1',
-    'https://placedog.net/400/400?id=2',
     'https://placedog.net/400/400?id=3',
     'https://placedog.net/400/400?id=4',
+    'https://placedog.net/400/400?id=1',
+    'https://placedog.net/400/400?id=21',
     'https://placedog.net/400/400?id=5',
     'https://placedog.net/400/400?id=6',
     'https://placedog.net/400/400?id=7',
     'https://placedog.net/400/400?id=8',
     'https://placedog.net/400/400?id=9',
     'https://placedog.net/400/400?id=10',
+    
   ],
   Cats: [
     'https://cdn2.thecatapi.com/images/MTY3ODIyMQ.jpg',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOWxwJD2Z1yDo54D9G2kSJkvtv2v_7NXKRqg&s',
     'https://cdn2.thecatapi.com/images/3bt.jpg',
     'https://cdn2.thecatapi.com/images/9ccXTANkb.jpg',
     'https://cdn2.thecatapi.com/images/bpc.jpg',
@@ -26,6 +28,7 @@ const imageMap = {
   Birds: [
     'https://images.pexels.com/photos/45851/bird-sparrow-branch-tree-45851.jpeg',
     'https://images.pexels.com/photos/326900/pexels-photo-326900.jpeg',
+    'https://www.tierchenwelt.de/images/stories/haustiere/voegel/wellensittiche_l.jpg',
     'https://images.pexels.com/photos/45863/bird-nature-wildlife-beak-45863.jpeg',
     'https://images.pexels.com/photos/128756/pexels-photo-128756.jpeg',
     'https://images.pexels.com/photos/414181/pexels-photo-414181.jpeg',
@@ -48,6 +51,11 @@ const imageMap = {
     'https://images.pexels.com/photos/225869/pexels-photo-225869.jpeg',
   ],
   Other: [
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
+    'https://www.kaninchen-haltung.com/wp-content/uploads/2020/04/kaninchen-alter-haustier.jpg',
+    'https://www.kaninchen-haltung.com/wp-content/uploads/2020/04/kaninchen-alter-haustier.jpg',
+    'https://www.kaninchen-haltung.com/wp-content/uploads/2020/04/kaninchen-alter-haustier.jpg',
+    'https://www.kaninchen-haltung.com/wp-content/uploads/2020/04/kaninchen-alter-haustier.jpg',
     'https://images.pexels.com/photos/1084165/pexels-photo-1084165.jpeg',
     'https://images.pexels.com/photos/248280/pexels-photo-248280.jpeg',
     'https://images.pexels.com/photos/1314816/pexels-photo-1314816.jpeg',

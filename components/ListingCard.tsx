@@ -25,19 +25,18 @@ export default function ListingCard({ listing, right, from = 'Home' }: Props) {
   }
 
   const handlePress = () => {
-  if (userInfo.role === 'owner') {
-    router.push({
-      pathname: `/sitter/${listing.id}`,
-      params: { from }, // ✅ hinzufügen
-    });
-  } else {
-    router.push({
-      pathname: `/listing/${listing.id}`,
-      params: { from },
-    });
-  }
-};
-
+    if (userInfo.role === 'owner') {
+      router.push({
+        pathname: `/sitter/${listing.id}`,
+        params: { from }, // ✅ hinzufügen
+      });
+    } else {
+      router.push({
+        pathname: `/listing/${listing.id}`,
+        params: { image: listing.image, from: 'Home' },
+      });
+    }
+  };
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>

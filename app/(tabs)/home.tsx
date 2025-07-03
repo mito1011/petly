@@ -10,46 +10,62 @@ import SearchBar from '../../components/SearchBar';
 import TagSelector from '../../components/TagSelector';
 import { useUserRole } from '../../context/UserRoleContext';
 import { dummyCaretakers } from '../../data/dummyCaretakers'; // 👈 Sitters!
-import { dummyListings } from '../../data/dummyListing';
+import { getAnimalImageUrl } from '../../data/dummyURL';
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 
-function mapBackendListingToDummy(listing) {
+function mapBackendListingsWithImages(listings) {
+  // Zähler für jede Tierart, damit jedes Bild nur einmal verwendet wird
+  const imageCounters = {
+    Dogs: 0,
+    Cats: 0,
+    Birds: 0,
+    Exotic: 0,
+    Other: 0,
+  };
+
   const tagMap = {
-    'house-sitting': 'Training',
-    'drop-in-visit': 'Daycare',
+    'house-sitting': 'House Sitting',
+    'drop-in-visit': 'Drop-in Visit',
     'day-care': 'Daycare',
     'walks': 'Walks',
     'feeding': 'Feeding',
     'overnight': 'Overnight',
     'medication': 'Medication',
   };
-  return {
-    id: listing.id,
-    title: listing.title,
-    description: listing.description,
-    image: listing.image || 'https://via.placeholder.com/400',
-    tags: (listing.listingType || []).map((t) => tagMap[t] || t),
-    animalTypes: [
+
+  return listings.map((listing) => {
+    let animalType =
       listing.species === 'dog'
         ? 'Dogs'
         : listing.species === 'cat'
         ? 'Cats'
         : listing.species === 'bird'
-        ? 'Bird'
+        ? 'Birds'
         : listing.species === 'exotic'
         ? 'Exotic'
-        : 'Other'
-    ],
-    about: listing.about || '',
-    breed: listing.breed,
-    age: listing.age ? `${listing.age} years` : '',
-    size: listing.size,
-    exercise: listing.exercise || '',
-    feeding: listing.feeding,
-    medication: listing.medication,
-    appliedBy: listing.appliedBy || [],
-  };
+        : 'Other';
+
+    // Bild anhand der ID zuweisen
+    const image = getAnimalImageUrl(animalType, listing.id);
+
+    return {
+      id: listing.id,
+      title: listing.title,
+      description: listing.description,
+      image,
+      tags: (listing.listingType || []).map((t) => tagMap[t] || t),
+      animalTypes: [animalType],
+      about: listing.about || '',
+      breed: listing.breed,
+      age: listing.age ? `${listing.age} years` : '',
+      size: listing.size,
+      exercise: listing.exercise || '',
+      feeding: listing.feeding,
+      medication: listing.medication,
+      appliedBy: listing.appliedBy || [],
+    };
+  });
 }
 
 export default function HomeScreen() {
@@ -106,11 +122,9 @@ export default function HomeScreen() {
     router.push('/feature-preview');
   };
 
-  // Mapping anwenden, bevor du zusammenfügst:
-  const mappedBackendListings = backendListings.map(mapBackendListingToDummy);
-  const allListings = [...mappedBackendListings, ...dummyListings];
-
-  const filteredListings = filterItems(allListings);
+  // Nur noch Backend-Listings verwenden!
+  const mappedBackendListings = mapBackendListingsWithImages(backendListings);
+  const filteredListings = filterItems(mappedBackendListings);
   const filteredSitters = filterItems(dummyCaretakers); // Nur lokal
 
   if (!userInfo) {
@@ -139,7 +153,7 @@ export default function HomeScreen() {
           Care Needs
         </Text>
         <TagSelector
-          tags={['Walks', 'Feeding', 'Daycare', 'Training', 'Overnight']}
+          tags={['Walks', 'Feeding', 'Daycare', 'House Sitting','Drop-in Visit','Medication', 'Overnight']}
           selectedTags={selectedTags}
           onSelectTag={(tag: string) =>
             setSelectedTags((prev) =>
