@@ -45,7 +45,7 @@ export default function ListingCard({ listing, user, right, from = 'Home' }: Pro
         id: user.id,
         title: user.name,
         image: user.avatar || 'https://via.placeholder.com/80',
-        tags: user.tags,
+        tags: user.tags || [],
         rating: user.rating,
         reviews: user.reviews,
         completedJobs: user.completedJobs, // Optional, falls vorhanden

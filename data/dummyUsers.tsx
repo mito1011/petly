@@ -42,6 +42,7 @@ export const dummyUsers = [
     completedJobs: 58,
     repeatClients: 21,
     about: 'Experienced with dogs and cats. Reliable, punctual and caring.',
+    tags: ['Verified'],
   },
   {
     id: 'sitter2',
@@ -53,6 +54,7 @@ export const dummyUsers = [
     completedJobs: 35,
     repeatClients: 15,
     about: 'Loves animals of all kinds. Available for overnight stays.',
+    tags: ['Verified'],
   },
   {
     id: 'sitter3',
@@ -64,5 +66,6 @@ export const dummyUsers = [
     completedJobs: 20,
     repeatClients: 8,
     about: 'Flexible schedule and lots of love to give to pets in need.',
+    tags: [],
   },
 ];

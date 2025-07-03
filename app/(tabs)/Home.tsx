@@ -146,8 +146,10 @@ return (
       <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
         Care Needs
       </Text>
+      
+      {userInfo.role === 'sitter' && (
       <TagSelector
-        tags={['Walks', 'Feeding', 'Daycare', 'House Sitting','Drop-in Visit','Medication', 'Overnight']}
+        tags={['Walks', 'Feeding', 'Daycare', 'House Sitting','Drop-in Visit']}
         selectedTags={selectedTags}
         onSelectTag={(tag: string) =>
           setSelectedTags((prev) =>
@@ -155,6 +157,21 @@ return (
           )
         }
       />
+      )}
+
+      {userInfo.role === 'owner' && (
+      <TagSelector
+        tags={['Verified']}
+        selectedTags={selectedTags}
+        onSelectTag={(tag: string) =>
+          setSelectedTags((prev) =>
+            prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+          )
+        }
+      />
+      )}
+
+
 
       {loading && userInfo.role === 'sitter' && (
         <Text style={{ marginTop: 20 }}>Loading listings...</Text>
@@ -187,7 +204,7 @@ return (
               id: sitter.id,
               name: sitter.name,
               avatar: sitter.avatar,
-              tags: ['Reliable', 'Verified'], // z. B. fixer Tag-Satz
+              tags: [...(sitter.tags ?? [])], // z. B. fixer Tag-Satz
               rating: Math.random() * 1 + 4, // Dummy
               reviews: sitter.completedJobs ?? 0, // Dummy
             };
