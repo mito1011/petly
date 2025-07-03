@@ -157,7 +157,7 @@ export default function MessagesScreen() {
         onPress={() =>
           router.push({
             pathname: `/listing/${item.id}`,
-            params: { from: 'messages' },
+            params: { from: 'Applications' },
           })
         }
       >

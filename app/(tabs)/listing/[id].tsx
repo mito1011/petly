@@ -122,7 +122,7 @@ export default function ListingDetails() {
         </View>
       </View>
 
-      {userInfo?.role === 'sitter' && from !== 'messages' &&(
+      {userInfo?.role === 'sitter' && from !== 'Applications' &&(
         <View style={styles.buttonContainer}>
           <Pressable style={[styles.button, styles.accept]} onPress={handleBookNow}>
             <Text style={styles.buttonText}>Book Now</Text>
