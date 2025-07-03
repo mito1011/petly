@@ -19,10 +19,17 @@ export default function TabLayout() {
         tabBarInactiveTintColor: 'gray',
       })}
     >
+<<<<<<< HEAD
       <Tabs.Screen name="Home" options={{ title: 'Home' }} />
       <Tabs.Screen name="Post" options={{ title: 'Post' }} />
       <Tabs.Screen name="Applications" options={{ title: 'Applications' }} />
       <Tabs.Screen name="Profile" options={{ title: 'Profile' }} />
+=======
+      <Tabs.Screen name="Home" />
+      <Tabs.Screen name="Post" />
+      <Tabs.Screen name="Applications" />
+      <Tabs.Screen name="Profile" />
+>>>>>>> loadBackend
 
       {/* 👇 Diese Screens nicht als Tab anzeigen */}
       <Tabs.Screen name="listing/[id]" options={{ href: null }} />
