@@ -20,9 +20,9 @@ const imageMap = {
     'https://cdn2.thecatapi.com/images/bpc.jpg',
     'https://cdn2.thecatapi.com/images/6qi.jpg',
     'https://cdn2.thecatapi.com/images/cml.jpg',
-    'https://cdn2.thecatapi.com/images/MTg0NjMwOQ.jpg',
+    'https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg', //hier
     'https://cdn2.thecatapi.com/images/ecc.jpg',
-    'https://cdn2.thecatapi.com/images/f2d.jpg',
+    'https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg',        //hier
     'https://cdn2.thecatapi.com/images/MTY3ODIyMQ.jpg',
   ],
   Birds: [
