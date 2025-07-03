@@ -65,7 +65,7 @@ export default function ListingDetails() {
       const result = await res.json();
       console.log('✅ Bewerbung erstellt:', result);
       Alert.alert('Success', 'Application submitted!');
-      router.push('/Messages');
+      router.push('/Applications');
     } catch (err) {
       console.error('❌ Fehler bei Buchung:', err);
       Alert.alert('Fehler', 'Bewerbung konnte nicht gesendet werden.');
@@ -80,10 +80,10 @@ export default function ListingDetails() {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
-            if (from === 'home') {
+            if (from === 'Home') {
               router.push('/Home');
             } else {
-              router.push('/Messages');
+              router.push('/Applications');
             }
           }}
           style={styles.backButton}
