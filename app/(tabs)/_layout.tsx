@@ -14,6 +14,15 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarIcon: ({ color, size }) => {
+          let iconName = 'home';
+          if (route.name === 'Home') iconName = 'home';
+          else if (route.name === 'Post') iconName = 'add-circle';
+          else if (route.name === 'Applications') iconName = 'chatbubbles';
+          else if (route.name === 'Profile') iconName = 'person';
+
+          return <Ionicons name={iconName as any} size={size} color={color} />;
+        },
         tabBarActiveTintColor: '#1E5128',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
