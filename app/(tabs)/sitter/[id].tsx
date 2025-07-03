@@ -1,5 +1,4 @@
 // 📁 app/sitter/[id].tsx
-import RatingBar from '@/components/RatinBar';
 import { dummyUsers } from '@/data/dummyUsers';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -7,7 +6,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 
 export default function SitterProfile() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   // Nur in dummyUsers suchen
   const sitter = dummyUsers.find((u) => u.id === String(id));
 
@@ -18,7 +17,16 @@ export default function SitterProfile() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => {
+            if (from === 'Applications') {
+              router.replace('/Applications');
+            } else {
+              router.back(); // fallback
+            }
+          }}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color="#1E5128" />
         </TouchableOpacity>
         <Text style={styles.title}>{sitter.name ?? sitter.title}</Text>

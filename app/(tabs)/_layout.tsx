@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserRole } from '@/context/UserRoleContext';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   const { userInfo } = useUserRole();
@@ -36,7 +36,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Messages"
+        name="Applications"
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="message-text" color={color} size={size} />

@@ -120,7 +120,7 @@ export default function HomeScreen() {
               <ListingCard
                 key={`${listing.id}-${index}`}
                 listing={listing}
-                from="home"
+                from="Home"
               />
             ))}
           </>
@@ -135,7 +135,7 @@ export default function HomeScreen() {
               <ListingCard
                 key={`${sitter.id}-${index}`}
                 listing={sitter}
-                from="home"
+                from="Home"
               />
             ))}
           </>
