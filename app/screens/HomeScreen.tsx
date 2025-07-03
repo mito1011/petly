@@ -1,7 +1,5 @@
 // screens/HomeScreen.tsx
 import { ListingCard } from '@/components/ListingCard';
-
- 
 import { SearchBar } from '@/components/SearchBar';
 import { TagSelector } from '@/components/TagSelector';
 import { useUserRole } from '@/context/UserRoleContext';
@@ -23,7 +21,7 @@ const examplePetData = [
   { name: 'Mittens', description: 'Cat Sitting', rating: 4.8, reviews: 8, image: 'https://placekitten.com/101/101' },
 ];
 
-export const HomeScreen = () => {
+function HomeScreen() {
   const { role } = useUserRole();
   const [search, setSearch] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -54,6 +52,6 @@ export const HomeScreen = () => {
       ))}
     </ScrollView>
   );
-};
+}
 
 export default HomeScreen;

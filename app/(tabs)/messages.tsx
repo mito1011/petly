@@ -1,6 +1,7 @@
 import { useUserRole } from '@/context/UserRoleContext';
-import { dummyApplications } from '@/data/dummyApplications';
+// import { dummyApplications } from '@/data/dummyApplications'; // entfernt
 import { dummyListings } from '@/data/dummyListing';
+import { dummyUsers } from '@/data/dummyUsers';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -11,6 +12,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Button,
+  Alert,
 } from 'react-native';
 
 const BASE_URL = 'http://localhost:3000/api/v1';
@@ -20,6 +23,7 @@ export default function MessagesScreen() {
   const router = useRouter();
   const [backendApplications, setBackendApplications] = useState([]);
   const [backendListings, setBackendListings] = useState([]);
+  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,119 +75,237 @@ export default function MessagesScreen() {
 
   const allListings = [...backendListings, ...dummyListings];
 
-  // 👇 Nur Dummy-Bewerbungen behalten, die nicht schon im Backend existieren
-  const filteredApplications = [
-    ...backendApplications,
-    ...dummyApplications.filter((dummy) =>
-      !backendApplications.some(
-        (real) =>
-          String(real.listingId) === String(dummy.listingId) &&
-          String(real.sitterId) === String(dummy.sitterId)
-      )
-    ),
-  ];
+  // Nur noch Backend-Bewerbungen verwenden!
+  const filteredApplications = backendApplications;
 
-  const getOwnerId = (listingId) => {
-    const match = allListings.find(
-      (l) => String(l.id) === String(listingId)
-    );
-    return match?.ownerId;
-  };
-
+  // OWNER-VIEW
   if (userInfo.role === 'owner') {
-    const pending = filteredApplications.filter(
-      (app) =>
-        app.status === 'pending' &&
-        String(getOwnerId(app.listingId)) === String(userInfo.userId)
-    );
+    // 1. Zeige Liste der eigenen Inserate
+    if (!selectedListingId) {
+      const myListings = allListings.filter(
+        (l) => String(l.ownerId) === String(userInfo.userId)
+      );
 
-    const accepted = filteredApplications.filter(
-      (app) =>
-        app.status === 'accepted' &&
-        String(getOwnerId(app.listingId)) === String(userInfo.userId)
-    );
+      // Hilfsfunktion: Hat das Inserat eine angenommene Bewerbung?
+      const isClosed = (listingId: string) =>
+        filteredApplications.some(
+          (app) =>
+            String(app.listingId) === String(listingId) &&
+            app.status === 'accepted'
+        );
+
+      // Listen aufteilen
+      const openListings = myListings.filter((l) => !isClosed(l.id));
+      const closedListings = myListings.filter((l) => isClosed(l.id));
+
+      const renderListing = ({ item }) => (
+        <TouchableOpacity
+          style={styles.item}
+          onPress={() => setSelectedListingId(item.id)}
+        >
+          <Image
+            source={{ uri: item.image || 'https://via.placeholder.com/48' }}
+            style={styles.avatar}
+          />
+          <View>
+            <Text style={styles.name}>{item.title}</Text>
+            <Text style={styles.sub}>{(item.tags || []).join(', ')}</Text>
+          </View>
+        </TouchableOpacity>
+      );
+
+      return (
+        <View style={styles.container}>
+          <Text style={styles.header}>Your Listings</Text>
+          <Text style={[styles.label, { marginTop: 0, marginBottom: 0 }]}>Open</Text>
+          <FlatList
+            data={openListings}
+            renderItem={renderListing}
+            keyExtractor={(item) => String(item.id)}
+            ListEmptyComponent={<Text style={styles.sub}>No open listings.</Text>}
+            style={{ marginBottom: 0 }}
+            contentContainerStyle={{ paddingBottom: 0, marginBottom: 0 }}
+          />
+          <Text style={[styles.label, { marginTop: 0, marginBottom: 4 }]}>Closed</Text>
+          <FlatList
+            data={closedListings}
+            renderItem={renderListing}
+            keyExtractor={(item) => String(item.id)}
+            ListEmptyComponent={<Text style={styles.sub}>No closed listings.</Text>}
+            style={{ marginBottom: 0 }}
+            contentContainerStyle={{ paddingTop: 0, marginTop: 0 }}
+          />
+        </View>
+      );
+    }
+
+    // 2. Zeige Bewerbungen für das ausgewählte Inserat
+    const applicationsForListing = filteredApplications
+      .filter(
+        (app) =>
+          String(app.listingId) === String(selectedListingId) &&
+          dummyUsers.some((u) => u.id === app.sitterId)
+      )
+      .map((app) => {
+        const user = dummyUsers.find((u) => u.id === app.sitterId);
+        return {
+          ...app,
+          avatar: user?.avatar,
+          name: user?.name,
+        };
+      });
+
+    const handleStatusChange = async (appId: string, status: 'accepted' | 'denied') => {
+      try {
+        // PATCH-Request an dein Backend
+        const response = await fetch(`${BASE_URL}/applications/${appId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Update failed');
+        }
+
+        // Optional: Backend gibt die aktualisierte Bewerbung zurück
+        const updatedApp = await response.json();
+
+        // State updaten, damit UI sich ändert
+        setBackendApplications((prev) =>
+          prev.map((a) =>
+            String(a.id) === String(appId) ? { ...a, status: updatedApp.status } : a
+          )
+        );
+        Alert.alert('Status geändert', `Bewerbung ${appId} wurde auf ${status} gesetzt.`);
+      } catch (e) {
+        Alert.alert('Fehler', 'Status konnte nicht gespeichert werden.');
+      }
+    };
 
     const renderAppItem = ({ item }) => (
       <TouchableOpacity
-        style={styles.item}
-        onPress={() => router.push(`/application/${item.id}`)}
+        style={[styles.item, { opacity: item.status === 'denied' ? 0.5 : 1 }]}
+        onPress={() =>
+          router.push({
+            pathname: `/sitter/${item.sitterId}`,
+          })
+        }
       >
         <Image
           source={{ uri: item.avatar || 'https://via.placeholder.com/48' }}
           style={styles.avatar}
         />
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.sub}>
             {item.service} · {item.date}
           </Text>
+          <Text
+            style={[
+              styles.status,
+              item.status === 'accepted'
+                ? styles.accepted
+                : item.status === 'denied'
+                ? styles.denied
+                : styles.pending,
+            ]}
+          >
+            Status: {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+          </Text>
         </View>
+        {item.status === 'pending' && (
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Button
+              title="Accept"
+              color="green"
+              onPress={() => handleStatusChange(item.id, 'accepted')}
+            />
+            <Button
+              title="Deny"
+              color="red"
+              onPress={() => handleStatusChange(item.id, 'denied')}
+            />
+          </View>
+        )}
       </TouchableOpacity>
     );
 
     return (
       <View style={styles.container}>
+        <TouchableOpacity onPress={() => setSelectedListingId(null)}>
+          <Text style={[styles.sub, { color: '#1E5128', marginBottom: 12 }]}>
+            ← Back to Listings
+          </Text>
+        </TouchableOpacity>
         <Text style={styles.header}>Applications</Text>
-        <Text style={styles.label}>Pending</Text>
         <FlatList
-          data={pending}
+          data={applicationsForListing}
           renderItem={renderAppItem}
-          keyExtractor={(item) => String(item.id)}
-          ListEmptyComponent={<Text style={styles.sub}>No pending applications.</Text>}
-        />
-        <Text style={styles.label}>Accepted</Text>
-        <FlatList
-          data={accepted}
-          renderItem={renderAppItem}
-          keyExtractor={(item) => String(item.id)}
-          ListEmptyComponent={<Text style={styles.sub}>No accepted applications.</Text>}
-        />
-      </View>
-    );
-  } else {
-    const sitterApplications = filteredApplications.filter(
-      (app) => app.sitterId === userInfo.userId
-    );
-
-    const appliedListings = sitterApplications
-      .map((app) =>
-        allListings.find((l) => String(l.id) === String(app.listingId))
-      )
-      .filter(Boolean);
-
-    const renderListingItem = ({ item }) => (
-      <TouchableOpacity
-        style={styles.item}
-        onPress={() =>
-          router.push({
-            pathname: `/listing/${item.id}`,
-            params: { from: 'messages' },
-          })
-        }
-      >
-        <Image
-          source={{ uri: item.image || 'https://via.placeholder.com/48' }}
-          style={styles.avatar}
-        />
-        <View>
-          <Text style={styles.name}>{item.title}</Text>
-          <Text style={styles.sub}>{(item.tags || []).join(', ')}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.header}>Your Applications</Text>
-        <FlatList
-          data={appliedListings}
-          renderItem={renderListingItem}
           keyExtractor={(item) => String(item.id)}
           ListEmptyComponent={<Text style={styles.sub}>No applications yet.</Text>}
         />
       </View>
     );
   }
+
+  // SITTER-VIEW
+  const sitterApplications = filteredApplications.filter(
+    (app) => app.sitterId === userInfo.userId
+  );
+
+  const appliedListings = sitterApplications
+    .map((app) =>
+      allListings.find((l) => String(l.id) === String(app.listingId))
+        ? { listing: allListings.find((l) => String(l.id) === String(app.listingId)), status: app.status }
+        : null
+    )
+    .filter(Boolean);
+
+  const renderListingItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.item}
+      onPress={() =>
+        router.push({
+          pathname: `/listing/${item.listing.id}`,
+          params: { from: 'messages' },
+        })
+      }
+    >
+      <Image
+        source={{ uri: item.listing.image || 'https://via.placeholder.com/48' }}
+        style={styles.avatar}
+      />
+      <View>
+        <Text style={styles.name}>{item.listing.title}</Text>
+        <Text style={styles.sub}>{(item.listing.tags || []).join(', ')}</Text>
+        <Text
+          style={[
+            styles.status,
+            item.status === 'accepted'
+              ? styles.accepted
+              : item.status === 'denied'
+              ? styles.denied
+              : styles.pending,
+          ]}
+        >
+          Status: {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Your Applications</Text>
+      <FlatList
+        data={appliedListings}
+        renderItem={renderListingItem}
+        keyExtractor={(item, idx) => String(item.listing.id) + '-' + idx}
+        ListEmptyComponent={<Text style={styles.sub}>No applications yet.</Text>}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -221,4 +343,12 @@ const styles = StyleSheet.create({
   sub: {
     color: '#666',
   },
+  status: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  accepted: { color: 'green' },
+  denied: { color: 'red' },
+  pending: { color: '#FFA500' },
 });

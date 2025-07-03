@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function ProfileScreen() {
-  const { userInfo } = useUserRole();
+  const { userInfo, setUserInfo, } = useUserRole();
   const user = dummyUsers.find((u) => u.id === userInfo?.userId);
   const router = useRouter();
 
@@ -14,6 +14,7 @@ export default function ProfileScreen() {
   }
 
   const handleLogout = () => {
+    setUserInfo(null);      // User wirklich abmelden
     router.replace('/login');
   };
 
