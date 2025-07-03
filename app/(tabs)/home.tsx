@@ -9,8 +9,8 @@ import LiveTrackingCard from '../../components/LiveTrackingCard';
 import SearchBar from '../../components/SearchBar';
 import TagSelector from '../../components/TagSelector';
 import { useUserRole } from '../../context/UserRoleContext';
-import { dummyCaretakers } from '../../data/dummyCaretakers'; // 👈 Sitters!
 import { getAnimalImageUrl } from '../../data/dummyURL';
+import { dummyUsers } from '../../data/dummyUsers'; // ganz oben
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -117,77 +117,94 @@ export default function HomeScreen() {
   // Nur noch Backend-Listings verwenden!
   const mappedBackendListings = mapBackendListingsWithImages(backendListings);
   const filteredListings = filterItems(mappedBackendListings);
-  const filteredSitters = filterItems(dummyCaretakers); // Nur lokal
+  const sittersFromUsers = dummyUsers.filter((u) => u.role === 'sitter');
+  const filteredSitters = filterItems(sittersFromUsers);
 
   if (!userInfo) {
     return <Text style={{ padding: 20 }}>User not found</Text>;
   }
 
-  return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 16 }}>
-      {/* Feature Banner */}
-      <FeatureBanner onPress={handleFeatureBannerPress} />
-      
-      {/* Live Tracking Demo - nur für Owner */}
-      {userInfo.role === 'owner' && <LiveTrackingCard />}
-        <View style={{ padding: 16 }}>
-        <SearchBar value={query} onChange={setQuery} />
-        <TagSelector
-          tags={animalTypeTags}
-          selectedTags={selectedAnimalTypes}
-          onSelectTag={(type: string) =>
-            setSelectedAnimalTypes((prev) =>
-              prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-            )
-          }
-        />
-        <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
-          Care Needs
-        </Text>
-        <TagSelector
-          tags={['Walks', 'Feeding', 'Daycare', 'House Sitting','Drop-in Visit','Medication', 'Overnight']}
-          selectedTags={selectedTags}
-          onSelectTag={(tag: string) =>
-            setSelectedTags((prev) =>
-              prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-            )
-          }
-        />
+return (
+  <ScrollView contentContainerStyle={{ paddingBottom: 16 }}>
+    {/* Feature Banner */}
+    <FeatureBanner onPress={handleFeatureBannerPress} />
 
-        {loading && userInfo.role === 'sitter' && (
-          <Text style={{ marginTop: 20 }}>Loading listings...</Text>
-        )}
+    {/* Live Tracking Demo - nur für Owner */}
+    {userInfo.role === 'owner' && <LiveTrackingCard />}
 
-        {userInfo.role === 'sitter' && (
-          <>
-            <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
-              Pets Near You
-            </Text>
-            {filteredListings.map((listing, index) => (
-              <ListingCard
-                key={`${listing.id}-${index}`}
-                listing={listing}
-                from="Home"
-              />
-            ))}
-          </>
-        )}
+    <View style={{ padding: 16 }}>
+      <SearchBar value={query} onChange={setQuery} />
+      <TagSelector
+        tags={animalTypeTags}
+        selectedTags={selectedAnimalTypes}
+        onSelectTag={(type: string) =>
+          setSelectedAnimalTypes((prev) =>
+            prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+          )
+        }
+      />
+      <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
+        Care Needs
+      </Text>
+      <TagSelector
+        tags={['Walks', 'Feeding', 'Daycare', 'House Sitting','Drop-in Visit','Medication', 'Overnight']}
+        selectedTags={selectedTags}
+        onSelectTag={(tag: string) =>
+          setSelectedTags((prev) =>
+            prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+          )
+        }
+      />
 
-        {userInfo.role === 'owner' && (
-          <>
-            <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
-              Sitters Near You
-            </Text>
-            {filteredSitters.map((sitter, index) => (
+      {loading && userInfo.role === 'sitter' && (
+        <Text style={{ marginTop: 20 }}>Loading listings...</Text>
+      )}
+
+      {/* Sitter sieht Pflegeanzeigen */}
+      {userInfo.role === 'sitter' && (
+        <>
+          <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
+            Pets Near You
+          </Text>
+          {filteredListings.map((listing, index) => (
+            <ListingCard
+              key={`${listing.id}-${index}`}
+              listing={listing}
+              from="Home"
+            />
+          ))}
+        </>
+      )}
+
+      {/* Owner sieht Sitter-Profile (über user) */}
+      {userInfo.role === 'owner' && (
+        <>
+          <Text style={{ fontSize: 18, marginVertical: 12, fontWeight: 'bold' }}>
+            Sitters Near You
+          </Text>
+          {filteredSitters.map((sitter, index) => {
+            const userProps = {
+              id: sitter.id,
+              name: sitter.name,
+              avatar: sitter.avatar,
+              tags: ['Reliable', 'Verified'], // z. B. fixer Tag-Satz
+              rating: Math.random() * 1 + 4, // Dummy
+              reviews: Math.floor(Math.random() * 100), // Dummy
+            };
+
+            console.log('👤 ListingCard sitter from dummyUsers:', userProps);
+
+            return (
               <ListingCard
                 key={`${sitter.id}-${index}`}
-                listing={sitter}
+                user={userProps}
                 from="Home"
               />
-            ))}
-          </>
-        )}
-      </View>
-    </ScrollView>
-  );
+            );
+          })}
+        </>
+      )}
+    </View>
+  </ScrollView>
+);
 }
