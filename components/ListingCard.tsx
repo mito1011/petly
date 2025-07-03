@@ -13,10 +13,10 @@ type Props = {
     reviews?: number;
   };
   right?: React.ReactNode;
-  from?: 'home' | 'messages'; // optional
+  from?: 'Home' | 'Applications'; // optional
 };
 
-export default function ListingCard({ listing, right, from = 'home' }: Props) {
+export default function ListingCard({ listing, right, from = 'Home' }: Props) {
   const router = useRouter();
   const { userInfo } = useUserRole();
 
@@ -25,15 +25,19 @@ export default function ListingCard({ listing, right, from = 'home' }: Props) {
   }
 
   const handlePress = () => {
-    if (userInfo.role === 'owner') {
-      router.push(`/sitter/${listing.id}`);
-    } else {
-      router.push({
-        pathname: `/listing/${listing.id}`,
-        params: { from },
-      });
-    }
-  };
+  if (userInfo.role === 'owner') {
+    router.push({
+      pathname: `/sitter/${listing.id}`,
+      params: { from }, // ✅ hinzufügen
+    });
+  } else {
+    router.push({
+      pathname: `/listing/${listing.id}`,
+      params: { from },
+    });
+  }
+};
+
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>

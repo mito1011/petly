@@ -6,14 +6,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
+  Alert,
+  Button,
   FlatList,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Button,
-  Alert,
 } from 'react-native';
 
 const BASE_URL = 'http://localhost:3000/api/v1';
@@ -270,7 +270,7 @@ export default function MessagesScreen() {
       onPress={() =>
         router.push({
           pathname: `/listing/${item.listing.id}`,
-          params: { from: 'messages' },
+          params: { from: 'Applications' },
         })
       }
     >

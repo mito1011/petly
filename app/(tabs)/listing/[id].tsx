@@ -80,7 +80,7 @@ export default function ListingDetails() {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
-            if (from === 'home') {
+            if (from === 'Home') {
               router.push('/Home');
             } else {
               router.push('/Applications');
@@ -122,7 +122,7 @@ export default function ListingDetails() {
         </View>
       </View>
 
-      {userInfo?.role === 'sitter' && from !== 'applications' &&(
+      {userInfo?.role === 'sitter' && from !== 'Applications' &&(
         <View style={styles.buttonContainer}>
           <Pressable style={[styles.button, styles.accept]} onPress={handleBookNow}>
             <Text style={styles.buttonText}>Book Now</Text>

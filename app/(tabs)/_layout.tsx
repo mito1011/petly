@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserRole } from '@/context/UserRoleContext';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   const { userInfo } = useUserRole();
