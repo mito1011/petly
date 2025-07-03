@@ -1,6 +1,6 @@
 // app/(tabs)/post.tsx
 import { useUserRole } from '@/context/UserRoleContext';
-import DateTimePicker from '@react-native-community/datetimepicker'; // oben importieren
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import {
@@ -81,25 +81,59 @@ export default function PostScreen() {
   const getImageForAnimal = () => imageMap[form.animalTypes] || imageMap.Other;
 
   const handleSubmit = async () => {
-    if (!userInfo) return Alert.alert('Error', 'User not found');
-
-    // Validierung: listingType darf nicht leer sein!
-    if (!form.listingType || form.listingType.length === 0) {
-      Alert.alert('Fehler', 'Bitte mindestens einen Tag auswählen.');
+    // Frontend-Validierung
+    if (!form.title.trim()) {
+      showAlert('Fehler', 'Title ist ein Pflichtfeld.');
       return;
     }
+    if (!form.description.trim()) {
+      showAlert('Fehler', 'Description ist ein Pflichtfeld.');
+      return;
+    }
+    if (!form.species) {
+      showAlert('Fehler', 'Animal Type ist ein Pflichtfeld.');
+      return;
+    }
+    if (!form.listingType || form.listingType.length === 0) {
+      showAlert('Fehler', 'Bitte mindestens einen Tag auswählen.');
+      return;
+    }
+    if (!form.startDate) {
+      showAlert('Fehler', 'Start Date ist ein Pflichtfeld.');
+      return;
+    }
+    if (!form.endDate) {
+      showAlert('Fehler', 'End Date ist ein Pflichtfeld.');
+      return;
+    }
+    if (form.price === '' || isNaN(Number(form.price)) || Number(form.price) < 0) {
+      showAlert('Fehler', 'Price muss eine Zahl größer oder gleich 0 sein.');
+      return;
+    }
+    if (typeof form.sitterVerified !== 'boolean') {
+      showAlert('Fehler', 'Sitter Verified ist ein Pflichtfeld.');
+      return;
+    }
+
+    // Optional: Age validieren, falls ausgefüllt
+    if (form.age !== '' && (isNaN(Number(form.age)) || Number(form.age) < 0)) {
+      showAlert('Fehler', 'Age muss eine Zahl größer oder gleich 0 sein.');
+      return;
+    }
+
+    if (!userInfo) return showAlert('Error', 'User not found');
 
     // Validierung: species muss Enum sein
     const allowedSpecies = ['dog', 'cat', 'bird', 'exotic', 'other'];
     if (!allowedSpecies.includes(form.species)) {
-      Alert.alert('Fehler', 'Ungültige Tierart.');
+      showAlert('Fehler', 'Ungültige Tierart.');
       return;
     }
 
     // Validierung: Datum im ISO8601-Format
     const isISODate = (str) => /^\d{4}-\d{2}-\d{2}/.test(str);
     if (!isISODate(form.startDate) || !isISODate(form.endDate)) {
-      Alert.alert('Fehler', 'Bitte gültige Start- und Enddaten im Format YYYY-MM-DD eingeben.');
+      showAlert('Fehler', 'Bitte gültige Start- und Enddaten im Format YYYY-MM-DD eingeben.');
       return;
     }
 
@@ -121,7 +155,6 @@ export default function PostScreen() {
     };
 
     console.log('📤 Sende neues Listing:', payload);
-    console.log('Payload:', payload);
     setIsSubmitting(true);
 
     try {
@@ -136,8 +169,7 @@ export default function PostScreen() {
       }
 
       const created = await response.json();
-      console.log('✅ Listing erstellt:', created);
-      Alert.alert('Erfolg', 'Listing wurde erstellt!');
+      showAlert('Erfolg', 'Listing wurde erstellt!');
       setForm({
         title: '',
         description: '',
@@ -155,7 +187,7 @@ export default function PostScreen() {
       });
     } catch (error) {
       console.error('❌ Fehler beim Speichern:', error);
-      Alert.alert('Fehler', 'Konnte das Listing nicht speichern');
+      showAlert('Fehler', 'Konnte das Listing nicht speichern');
     } finally {
       setIsSubmitting(false);
     }
@@ -194,14 +226,7 @@ export default function PostScreen() {
             <TouchableOpacity
               key={tag.value}
               style={[styles.tag, form.listingType.includes(tag.value) && styles.tagSelected]}
-              onPress={() =>
-                setForm((prev) => ({
-                  ...prev,
-                  listingType: prev.listingType.includes(tag.value)
-                    ? prev.listingType.filter((t) => t !== tag.value)
-                    : [...prev.listingType, tag.value],
-                }))
-              }
+              onPress={() => toggleTag(tag.value)}
             >
               <Text
                 style={[
@@ -456,3 +481,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+
+function showAlert(title, message) {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+}
+
+
