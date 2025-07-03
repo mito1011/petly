@@ -189,7 +189,7 @@ return (
               avatar: sitter.avatar,
               tags: ['Reliable', 'Verified'], // z. B. fixer Tag-Satz
               rating: Math.random() * 1 + 4, // Dummy
-              reviews: Math.floor(Math.random() * 100), // Dummy
+              reviews: sitter.completedJobs ?? 0, // Dummy
             };
 
             console.log('👤 ListingCard sitter from dummyUsers:', userProps);

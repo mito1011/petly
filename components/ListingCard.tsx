@@ -19,6 +19,9 @@ type UserProps = {
   tags?: string[];
   rating?: number;
   reviews?: number;
+  completedJobs?: number; // Optional, falls vorhanden
+  repeatClients?: number; // Optional, falls vorhanden
+  about?: string; // Optional, falls vorhanden
 };
 
 type Props = {
@@ -45,6 +48,9 @@ export default function ListingCard({ listing, user, right, from = 'Home' }: Pro
         tags: user.tags,
         rating: user.rating,
         reviews: user.reviews,
+        completedJobs: user.completedJobs, // Optional, falls vorhanden
+        repeatClients: user.repeatClients, // Optional, falls vorhanden
+        about: user.about, // Optional, falls vorhanden
       }
     : listing
     ? {
@@ -78,11 +84,8 @@ export default function ListingCard({ listing, user, right, from = 'Home' }: Pro
       <View style={styles.content}>
         <Text style={styles.title}>{display.title}</Text>
         <View style={styles.score}>
-          {display.rating && (
-            <Text style={styles.rating}>⭐ {display.rating.toFixed(1)} •</Text>
-          )}
           {display.reviews && (
-            <Text style={styles.reviews}> {display.reviews.toFixed(1)} Reviews</Text>
+            <Text style={styles.reviews}> {display.reviews.toFixed(1)} Jobs Completed</Text>
           )}
         </View>
         <View style={styles.tags}>
