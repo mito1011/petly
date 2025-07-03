@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 
-const BASE_URL = 'http://100.118.18.158:3000/api/v1';
+const BASE_URL = 'http://localhost:3000/api/v1';
 
 export default function MessagesScreen() {
   const { userInfo } = useUserRole();
