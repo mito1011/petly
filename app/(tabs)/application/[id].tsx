@@ -26,7 +26,7 @@ export default function ApplicationDetail() {
   const [loading, setLoading] = useState(true);
 
   const handleBack = () => {
-    router.push('/Messages');
+    router.push('/Applications');
   };
 
   useEffect(() => {

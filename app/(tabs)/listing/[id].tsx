@@ -1,5 +1,6 @@
 import { useUserRole } from '@/context/UserRoleContext';
 import { dummyListings } from '@/data/dummyListing';
+import { getAnimalImageUrl } from '@/data/dummyURL'; // Import ergänzen
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ const BASE_URL = 'http://localhost:3000/api/v1';
 
 export default function ListingDetails() {
   const router = useRouter();
-  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const { id, from, image: navImage } = useLocalSearchParams<{ id: string; from?: string; image?: string }>();
   const listingId = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUserRole();
 
@@ -65,7 +66,7 @@ export default function ListingDetails() {
       const result = await res.json();
       console.log('✅ Bewerbung erstellt:', result);
       Alert.alert('Success', 'Application submitted!');
-      router.push('/Messages');
+      router.push('/Applications');
     } catch (err) {
       console.error('❌ Fehler bei Buchung:', err);
       Alert.alert('Fehler', 'Bewerbung konnte nicht gesendet werden.');
@@ -80,10 +81,10 @@ export default function ListingDetails() {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
-            if (from === 'home') {
+            if (from === 'Home' || !from) {
               router.push('/Home');
             } else {
-              router.push('/Messages');
+              router.push('/Applications');
             }
           }}
           style={styles.backButton}
@@ -93,7 +94,30 @@ export default function ListingDetails() {
         <Text style={styles.title}>{listing.title}</Text>
       </View>
 
-      <Image source={{ uri: listing.image || 'https://via.placeholder.com/300' }} style={styles.image} />
+      <Image
+        source={{
+          uri:
+            // 1. Bild aus Navigation verwenden, falls vorhanden
+            (typeof navImage === 'string' && navImage) ||
+            // 2. Sonst wie gehabt
+            listing.image ||
+            getAnimalImageUrl(
+              listing.animalTypes?.[0] ||
+                (listing.species === 'dog'
+                  ? 'Dogs'
+                  : listing.species === 'cat'
+                  ? 'Cats'
+                  : listing.species === 'bird'
+                  ? 'Birds'
+                  : listing.species === 'exotic'
+                  ? 'Exotic'
+                  : 'Other'),
+              listing.id
+            ) ||
+            'https://via.placeholder.com/300',
+        }}
+        style={styles.image}
+      />
 
       <View style={styles.section}>
         <Text style={styles.about}>About {listing.title}</Text>
@@ -104,11 +128,12 @@ export default function ListingDetails() {
         <Text style={styles.sectionTitle}>Care Requirements</Text>
         <View style={styles.separator} />
         <View style={styles.row}>
+          <Info label="Species" value={listing.species} />
           <Info label="Breed" value={listing.breed} />
-          <Info label="Age" value={listing.age} />
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
+          <Info label="Age" value={listing.age} />
           <Info label="Size" value={listing.size} />
         </View>
         <View style={styles.separator} />
@@ -119,10 +144,27 @@ export default function ListingDetails() {
         <View style={styles.separator} />
         <View style={styles.row}>
           <Info label="Medication" value={listing.medication} />
+          <Info label="Listing Type" value={(listing.listingType || []).join(', ')} />
         </View>
       </View>
 
-      {userInfo?.role === 'sitter' && from !== 'messages' &&(
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Listing Details</Text>
+        <View style={styles.separator} />
+        <View style={styles.row}>
+          <Info label="Start Date" value={listing.startDate} />
+          <Info label="End Date" value={listing.endDate} />
+        </View>
+        <View style={styles.separator} />
+        <View style={styles.row}>
+          <Info label="Price" value={listing.price ? `${listing.price} €` : ''} />
+          <Info label="Sitter Verified" value={listing.sitterVerified ? 'Yes' : 'No'} />
+        </View>
+        <View style={styles.separator} />
+        
+      </View>
+
+      {userInfo?.role === 'sitter' && from !== 'Applications' &&(
         <View style={styles.buttonContainer}>
           <Pressable style={[styles.button, styles.accept]} onPress={handleBookNow}>
             <Text style={styles.buttonText}>Book Now</Text>
@@ -157,24 +199,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    height: 40,
+    height: 60,
+    backgroundColor: '#fff',
+    zIndex: 2,
+    flexDirection: 'row', // NEU: horizontal anordnen
   },
   backButton: {
     position: 'absolute',
     left: 0,
     paddingHorizontal: 10,
+    zIndex: 3,
+    height: '100%',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'center',
+    paddingLeft: 32, // Platz für den Pfeil
   },
   image: {
     width: '100%',
     height: 250,
     borderRadius: 10,
     marginBottom: 20,
+    marginTop: 10, // Platz für Header
   },
   section: {
     marginBottom: 24,

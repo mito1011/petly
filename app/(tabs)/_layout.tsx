@@ -1,33 +1,85 @@
-import { Ionicons } from '@expo/vector-icons';
+import { useUserRole } from '@/context/UserRoleContext';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
+  const { userInfo } = useUserRole();
+
+  if (!userInfo) return null;
+
+  const isSitter = userInfo.role === 'sitter';
+  const isOwner = userInfo.role === 'owner';
+
   return (
     <Tabs
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName = 'home';
-          if (route.name === 'home') iconName = 'home';
+          if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Post') iconName = 'add-circle';
-          else if (route.name === 'messages') iconName = 'chatbubbles';
-          else if (route.name === 'profile') iconName = 'person';
+          else if (route.name === 'Applications') iconName = 'chatbubbles';
+          else if (route.name === 'Profile') iconName = 'person';
 
           return <Ionicons name={iconName as any} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#1E5128',
         tabBarInactiveTintColor: 'gray',
-      })}
+        tabBarStyle: {
+          height: 56,
+          paddingBottom: 0,
+          paddingTop: 0,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom: 0,
+        },
+      }}
     >
-      <Tabs.Screen name="home" options={{ title: 'Home' }} />
-      <Tabs.Screen name="Post" options={{ title: 'Post' }} />
-      <Tabs.Screen name="messages" options={{ title: 'Messages' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen
+        name="Home"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="Applications"
+        options={{
+          tabBarLabel: 'Applications',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="message-text" color={color} size={size} />
+          ),
+        }}
+      />
+      {isOwner ? (
+      <Tabs.Screen
+        name="Post"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle-outline" color={color} size={size} />
+          ),
+        }}
+      />
+    ) : (
+      <Tabs.Screen name="Post" options={{ href: null }} />
+    )}
+      <Tabs.Screen
+        name="Profile"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="person-outline" color={color} size={size} />
+          ),
+        }}
+      />
 
-      {/* 👇 Diese Screens nicht als Tab anzeigen */}
+      {/* Unsichtbare Screens */}
       <Tabs.Screen name="listing/[id]" options={{ href: null }} />
       <Tabs.Screen name="sitter/[id]" options={{ href: null }} />
       <Tabs.Screen name="application/[id]" options={{ href: null }} />
+      <Tabs.Screen name="Messages" options={{ href: null }} />
+      <Tabs.Screen name="home" options={{ href: null }} />
     </Tabs>
   );
 }

@@ -10,7 +10,7 @@ export default function LoginScreen() {
 
   const handleLogin = (userId: string, role: 'sitter' | 'owner') => {
     setUserInfo({ userId, role });
-    router.replace('/(tabs)/home');
+    router.replace('/(tabs)/Home');
   };
 
   return (
