@@ -3,20 +3,35 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-type Props = {
-  listing: {
-    id: string;
-    title: string;
-    image?: string;
-    tags?: string[];
-    rating?: number;
-    reviews?: number;
-  };
-  right?: React.ReactNode;
-  from?: 'Home' | 'Applications'; // optional
+type ListingProps = {
+  id: string;
+  title: string;
+  image?: string;
+  tags?: string[];
+  rating?: number;
+  reviews?: number;
 };
 
-export default function ListingCard({ listing, right, from = 'Home' }: Props) {
+type UserProps = {
+  id: string;
+  name: string;
+  avatar?: string;
+  tags?: string[];
+  rating?: number;
+  reviews?: number;
+  completedJobs?: number; // Optional, falls vorhanden
+  repeatClients?: number; // Optional, falls vorhanden
+  about?: string; // Optional, falls vorhanden
+};
+
+type Props = {
+  listing?: ListingProps;
+  user?: UserProps;
+  right?: React.ReactNode;
+  from?: 'Home' | 'Applications';
+};
+
+export default function ListingCard({ listing, user, right, from = 'Home' }: Props) {
   const router = useRouter();
   const { userInfo } = useUserRole();
 
@@ -24,16 +39,42 @@ export default function ListingCard({ listing, right, from = 'Home' }: Props) {
     return <Text style={{ padding: 20 }}>User not found</Text>;
   }
 
+  // 👇 Entscheide anhand übergebenem Prop, nicht anhand der Rolle
+  const display = user
+    ? {
+        id: user.id,
+        title: user.name,
+        image: user.avatar || 'https://via.placeholder.com/80',
+        tags: user.tags,
+        rating: user.rating,
+        reviews: user.reviews,
+        completedJobs: user.completedJobs, // Optional, falls vorhanden
+        repeatClients: user.repeatClients, // Optional, falls vorhanden
+        about: user.about, // Optional, falls vorhanden
+      }
+    : listing
+    ? {
+        id: listing.id,
+        title: listing.title,
+        image: listing.image || 'https://via.placeholder.com/80',
+        tags: listing.tags,
+        rating: listing.rating,
+        reviews: listing.reviews,
+      }
+    : null;
+
+  if (!display) return null;
+
   const handlePress = () => {
-    if (userInfo.role === 'owner') {
+    if (user) {
       router.push({
-        pathname: `/sitter/${listing.id}`,
-        params: { from }, // ✅ hinzufügen
+        pathname: `/sitter/${user.id}`,
+        params: { from },
       });
-    } else {
+    } else if (listing) {
       router.push({
         pathname: `/listing/${listing.id}`,
-        params: { image: listing.image, from: 'Home' },
+        params: { from },
       });
     }
   };
@@ -41,24 +82,21 @@ export default function ListingCard({ listing, right, from = 'Home' }: Props) {
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.content}>
-        <Text style={styles.title}>{listing.title}</Text>
+        <Text style={styles.title}>{display.title}</Text>
         <View style={styles.score}>
-          {listing.rating && (
-            <Text style={styles.rating}>⭐ {listing.rating.toFixed(1)} •</Text>
-          )}
-          {listing.reviews && (
-            <Text style={styles.reviews}> {listing.reviews.toFixed(1)} Reviews</Text>
+          {display.reviews && (
+            <Text style={styles.reviews}> {display.reviews.toFixed(1)} Jobs Completed</Text>
           )}
         </View>
         <View style={styles.tags}>
-          {(listing.tags ?? []).map((tag) => (
+          {(display.tags ?? []).map((tag) => (
             <View key={tag} style={styles.tag}>
               <Text style={styles.tagText}>{tag}</Text>
             </View>
           ))}
         </View>
       </View>
-      <Image source={{ uri: listing.image }} style={styles.image} />
+      <Image source={{ uri: display.image }} style={styles.image} />
       {right && <View style={styles.right}>{right}</View>}
     </TouchableOpacity>
   );
