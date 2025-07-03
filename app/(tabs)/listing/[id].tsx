@@ -83,7 +83,7 @@ export default function ListingDetails() {
             if (from === 'home') {
               router.push('/Home');
             } else {
-              router.push('/Messages');
+              router.push('/Applications');
             }
           }}
           style={styles.backButton}
@@ -122,7 +122,7 @@ export default function ListingDetails() {
         </View>
       </View>
 
-      {userInfo?.role === 'sitter' && from !== 'messages' &&(
+      {userInfo?.role === 'sitter' && from !== 'applications' &&(
         <View style={styles.buttonContainer}>
           <Pressable style={[styles.button, styles.accept]} onPress={handleBookNow}>
             <Text style={styles.buttonText}>Book Now</Text>
