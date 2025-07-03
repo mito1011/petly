@@ -65,7 +65,7 @@ export default function ListingDetails() {
       const result = await res.json();
       console.log('✅ Bewerbung erstellt:', result);
       Alert.alert('Success', 'Application submitted!');
-      router.push('/Messages');
+      router.push('/Applications');
     } catch (err) {
       console.error('❌ Fehler bei Buchung:', err);
       Alert.alert('Fehler', 'Bewerbung konnte nicht gesendet werden.');

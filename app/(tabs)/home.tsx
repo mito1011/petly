@@ -14,6 +14,44 @@ import { dummyListings } from '../../data/dummyListing';
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 
+function mapBackendListingToDummy(listing) {
+  const tagMap = {
+    'house-sitting': 'Training',
+    'drop-in-visit': 'Daycare',
+    'day-care': 'Daycare',
+    'walks': 'Walks',
+    'feeding': 'Feeding',
+    'overnight': 'Overnight',
+    'medication': 'Medication',
+  };
+  return {
+    id: listing.id,
+    title: listing.title,
+    description: listing.description,
+    image: listing.image || 'https://via.placeholder.com/400',
+    tags: (listing.listingType || []).map((t) => tagMap[t] || t),
+    animalTypes: [
+      listing.species === 'dog'
+        ? 'Dogs'
+        : listing.species === 'cat'
+        ? 'Cats'
+        : listing.species === 'bird'
+        ? 'Bird'
+        : listing.species === 'exotic'
+        ? 'Exotic'
+        : 'Other'
+    ],
+    about: listing.about || '',
+    breed: listing.breed,
+    age: listing.age ? `${listing.age} years` : '',
+    size: listing.size,
+    exercise: listing.exercise || '',
+    feeding: listing.feeding,
+    medication: listing.medication,
+    appliedBy: listing.appliedBy || [],
+  };
+}
+
 export default function HomeScreen() {
   const { userInfo } = useUserRole();
   const router = useRouter();
@@ -68,7 +106,10 @@ export default function HomeScreen() {
     router.push('/feature-preview');
   };
 
-  const allListings = [...backendListings, ...dummyListings];
+  // Mapping anwenden, bevor du zusammenfügst:
+  const mappedBackendListings = backendListings.map(mapBackendListingToDummy);
+  const allListings = [...mappedBackendListings, ...dummyListings];
+
   const filteredListings = filterItems(allListings);
   const filteredSitters = filterItems(dummyCaretakers); // Nur lokal
 

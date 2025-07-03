@@ -36,25 +36,26 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Messages"
+        name="Applications"
         options={{
+          tabBarLabel: 'Applications',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="message-text" color={color} size={size} />
           ),
         }}
       />
+      {isOwner ? (
       <Tabs.Screen
         name="Post"
         options={{
-          // Nur für Owner anzeigen, sonst ausblenden!
-          href: isOwner ? undefined : null,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" color={color} size={size} />
           ),
         }}
       />
-
-
+    ) : (
+      <Tabs.Screen name="Post" options={{ href: null }} />
+    )}
       <Tabs.Screen
         name="Profile"
         options={{
@@ -63,11 +64,13 @@ export default function TabLayout() {
           ),
         }}
       />
-      
+
       {/* Unsichtbare Screens */}
       <Tabs.Screen name="listing/[id]" options={{ href: null }} />
       <Tabs.Screen name="sitter/[id]" options={{ href: null }} />
       <Tabs.Screen name="application/[id]" options={{ href: null }} />
+      <Tabs.Screen name="Messages" options={{ href: null }} />
+      <Tabs.Screen name="home" options={{ href: null }} />
     </Tabs>
   );
 }

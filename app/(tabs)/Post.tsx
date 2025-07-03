@@ -63,13 +63,43 @@ export default function PostScreen() {
   const handleSubmit = async () => {
     if (!userInfo) return Alert.alert('Error', 'User not found');
 
+    // Hilfsfunktion für Mapping von AnimalTypes zu species
+    const animalTypeMap = {
+      Dogs: 'dog',
+      Cats: 'cat',
+      Bird: 'bird',
+      Exotic: 'exotic',
+      Other: 'other',
+    };
+
+    // Hilfsfunktion für Mapping von Tags zu listingType
+    const tagMap = {
+      Walks: 'walks',
+      Daycare: 'day-care',
+      Feeding: 'feeding',
+      Training: 'house-sitting', // Passe ggf. an!
+      Overnight: 'overnight',
+    };
+
     const payload = {
-      ...form,
-      image: getImageForAnimal(),
       ownerId: userInfo.userId,
+      title: form.title,
+      description: form.description,
+      species: animalTypeMap[form.animalTypes] || 'other',
+      listingType: form.tags.map((tag) => tagMap[tag] || tag.toLowerCase()),
+      startDate: form.startDate || new Date().toISOString(), // Passe ggf. an!
+      endDate: form.endDate || new Date(Date.now() + 86400000).toISOString(), // Passe ggf. an!
+      sitterVerified: false, // Passe ggf. an!
+      price: Number(form.price) || 0, // Passe ggf. an!
+      breed: form.breed,
+      age: form.age ? Number(form.age) : undefined,
+      size: form.size,
+      feeding: form.feeding,
+      medication: form.medication,
     };
 
     console.log('📤 Sende neues Listing:', payload);
+    console.log('Payload:', payload);
     setIsSubmitting(true);
 
     try {

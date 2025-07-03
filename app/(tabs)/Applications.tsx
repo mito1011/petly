@@ -104,7 +104,7 @@ export default function MessagesScreen() {
           onPress={() => setSelectedListingId(item.id)}
         >
           <Image
-            source={{ uri: item.image || 'https://via.placeholder.com/48' }}
+            source={{ uri: item.image || item.avatar || 'https://via.placeholder.com/48' }}
             style={styles.avatar}
           />
           <View>
@@ -148,36 +148,38 @@ export default function MessagesScreen() {
       )
       .map((app) => {
         const user = dummyUsers.find((u) => u.id === app.sitterId);
+        const listing = allListings.find((l) => String(l.id) === String(app.listingId));
         return {
           ...app,
           avatar: user?.avatar,
           name: user?.name,
+          image: listing?.image, // Bild aus Listing hinzufügen
         };
       });
 
     const handleStatusChange = async (appId: string, status: 'accepted' | 'denied') => {
+      // Mapping für Backend
+      const backendStatus = status === 'denied' ? 'rejected' : status;
+
       try {
-        // PATCH-Request an dein Backend
         const response = await fetch(`${BASE_URL}/applications/${appId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({ status: backendStatus }),
         });
 
         if (!response.ok) {
           throw new Error('Update failed');
         }
 
-        // Optional: Backend gibt die aktualisierte Bewerbung zurück
         const updatedApp = await response.json();
 
-        // State updaten, damit UI sich ändert
         setBackendApplications((prev) =>
           prev.map((a) =>
             String(a.id) === String(appId) ? { ...a, status: updatedApp.status } : a
           )
         );
-        Alert.alert('Status geändert', `Bewerbung ${appId} wurde auf ${status} gesetzt.`);
+        Alert.alert('Status geändert', `Bewerbung ${appId} wurde auf ${backendStatus} gesetzt.`);
       } catch (e) {
         Alert.alert('Fehler', 'Status konnte nicht gespeichert werden.');
       }

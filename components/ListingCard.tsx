@@ -48,7 +48,7 @@ export default function ListingCard({ listing, right, from = 'home' }: Props) {
           )}
         </View>
         <View style={styles.tags}>
-          {listing.tags.map((tag) => (
+          {(listing.tags ?? []).map((tag) => (
             <View key={tag} style={styles.tag}>
               <Text style={styles.tagText}>{tag}</Text>
             </View>
