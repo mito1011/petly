@@ -69,7 +69,7 @@ export default function HomeScreen() {
   const [backendListings, setBackendListings] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const animalTypeTags = ['Dogs', 'Cats', 'Bird', 'Exotic', 'Other'];
+  const animalTypeTags = ['Dogs', 'Cats', 'Birds', 'Exotic', 'Other'];
 
   useFocusEffect(
     useCallback(() => {
