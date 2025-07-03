@@ -1,10 +1,10 @@
 // app/(tabs)/post.tsx
 import { useUserRole } from '@/context/UserRoleContext';
-import { getAnimalImageUrl } from '@/data/dummyURL'; // Import ergänzen
+import DateTimePicker from '@react-native-community/datetimepicker'; // oben importieren
+import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import {
   Alert,
-  Picker,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker'; // oben importieren
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 

@@ -1,8 +1,8 @@
 import { useUserRole } from '@/context/UserRoleContext';
 // import { dummyApplications } from '@/data/dummyApplications'; // entfernt
 import { dummyListings } from '@/data/dummyListing';
-import { dummyUsers } from '@/data/dummyUsers';
 import { getAnimalImageUrl } from '@/data/dummyURL'; // Falls noch nicht importiert
+import { dummyUsers } from '@/data/dummyUsers';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 
-const BASE_URL = 'http://localhost:3000/api/v1';
+const BASE_URL = 'http://100.118.18.158:3000/api/v1';
 
 export default function MessagesScreen() {
   const { userInfo } = useUserRole();
