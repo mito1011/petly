@@ -2,7 +2,7 @@ import { useUserRole } from '@/context/UserRoleContext';
 // import { dummyApplications } from '@/data/dummyApplications'; // entfernt
 import { dummyListings } from '@/data/dummyListing';
 import { dummyUsers } from '@/data/dummyUsers';
-import { getAnimalImageUrl } from '@/data/dummyURL'; // Import ergänzen
+import { getAnimalImageUrl } from '@/data/dummyURL'; // Falls noch nicht importiert
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -273,11 +273,27 @@ export default function MessagesScreen() {
   );
 
   const appliedListings = sitterApplications
-    .map((app) =>
-      allListings.find((l) => String(l.id) === String(app.listingId))
-        ? { listing: allListings.find((l) => String(l.id) === String(app.listingId)), status: app.status }
-        : null
-    )
+    .map((app) => {
+      const listing = allListings.find((l) => String(l.id) === String(app.listingId));
+      if (!listing) return null;
+      let animalType =
+        listing.species === 'dog'
+          ? 'Dogs'
+          : listing.species === 'cat'
+          ? 'Cats'
+          : listing.species === 'bird'
+          ? 'Birds'
+          : listing.species === 'exotic'
+          ? 'Exotic'
+          : 'Other';
+      return {
+        listing: {
+          ...listing,
+          image: listing.image || getAnimalImageUrl(animalType, listing.id),
+        },
+        status: app.status,
+      };
+    })
     .filter(Boolean);
 
   const renderListingItem = ({ item }) => (

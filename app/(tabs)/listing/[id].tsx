@@ -128,11 +128,12 @@ export default function ListingDetails() {
         <Text style={styles.sectionTitle}>Care Requirements</Text>
         <View style={styles.separator} />
         <View style={styles.row}>
+          <Info label="Species" value={listing.species} />
           <Info label="Breed" value={listing.breed} />
-          <Info label="Age" value={listing.age} />
         </View>
         <View style={styles.separator} />
         <View style={styles.row}>
+          <Info label="Age" value={listing.age} />
           <Info label="Size" value={listing.size} />
         </View>
         <View style={styles.separator} />
@@ -143,7 +144,24 @@ export default function ListingDetails() {
         <View style={styles.separator} />
         <View style={styles.row}>
           <Info label="Medication" value={listing.medication} />
+          <Info label="Listing Type" value={(listing.listingType || []).join(', ')} />
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Listing Details</Text>
+        <View style={styles.separator} />
+        <View style={styles.row}>
+          <Info label="Start Date" value={listing.startDate} />
+          <Info label="End Date" value={listing.endDate} />
+        </View>
+        <View style={styles.separator} />
+        <View style={styles.row}>
+          <Info label="Price" value={listing.price ? `${listing.price} €` : ''} />
+          <Info label="Sitter Verified" value={listing.sitterVerified ? 'Yes' : 'No'} />
+        </View>
+        <View style={styles.separator} />
+        
       </View>
 
       {userInfo?.role === 'sitter' && from !== 'Applications' &&(

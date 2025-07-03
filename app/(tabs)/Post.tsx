@@ -1,5 +1,6 @@
 // app/(tabs)/post.tsx
 import { useUserRole } from '@/context/UserRoleContext';
+import { getAnimalImageUrl } from '@/data/dummyURL'; // Import ergänzen
 import React, { useState } from 'react';
 import {
   Alert,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker'; // oben importieren
 
 const BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -23,24 +25,43 @@ const imageMap = {
   Exotic: 'https://media.istockphoto.com/id/495292808/photo/colorful-cute-toucan-tropical-bird-brazilian-amazon-blurred-green-background.jpg?s=612x612&w=0&k=20&c=5B5wcwa35ciXxbZEOZ0_dJjqZFmnMMl2__4V2ud4sZY=',
 };
 
-const animalTypeOptions = ['Dogs', 'Cats', 'Exotic', 'Other'];
-const tagOptions = ['Walks', 'Daycare', 'Feeding', 'Training', 'Overnight'];
-const sizeOptions = ['Small', 'Medium', 'Large'];
+const animalTypeOptions = [
+  { label: 'Hund', value: 'dog' },
+  { label: 'Katze', value: 'cat' },
+  { label: 'Vogel', value: 'bird' },
+  { label: 'Exotisch', value: 'exotic' },
+  { label: 'Sonstiges', value: 'other' },
+];
+
+const sizeOptions = ['Klein', 'Mittel', 'Groß'];
+
+const tagOptions = [
+  { label: 'House Sitting', value: 'house-sitting' },
+  { label: 'Walks', value: 'walks' },
+  { label: 'Feeding', value: 'feeding' },
+  { label: 'Overnight', value: 'overnight' },
+  { label: 'Daycare', value: 'day-care' },
+  { label: 'Drop-in Visit', value: 'drop-in-visit' },
+];
 
 export default function PostScreen() {
   const { userInfo } = useUserRole();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
 
   const [form, setForm] = useState({
     title: '',
     description: '',
-    tags: [],
-    animalTypes: 'Dogs',
-    about: '',
+    species: 'dog',
+    listingType: [],
+    startDate: '',
+    endDate: '',
+    sitterVerified: false,
+    price: '',
     breed: '',
     age: '',
-    size: 'Medium',
-    exercise: '',
+    size: 'Mittel',
     feeding: '',
     medication: '',
   });
@@ -48,9 +69,9 @@ export default function PostScreen() {
   const toggleTag = (tag) => {
     setForm((prev) => ({
       ...prev,
-      tags: prev.tags.includes(tag)
-        ? prev.tags.filter((t) => t !== tag)
-        : [...prev.tags, tag],
+      listingType: prev.listingType.includes(tag)
+        ? prev.listingType.filter((t) => t !== tag)
+        : [...prev.listingType, tag],
     }));
   };
 
@@ -63,39 +84,41 @@ export default function PostScreen() {
   const handleSubmit = async () => {
     if (!userInfo) return Alert.alert('Error', 'User not found');
 
-    // Hilfsfunktion für Mapping von AnimalTypes zu species
-    const animalTypeMap = {
-      Dogs: 'dog',
-      Cats: 'cat',
-      Bird: 'bird',
-      Exotic: 'exotic',
-      Other: 'other',
-    };
+    // Validierung: listingType darf nicht leer sein!
+    if (!form.listingType || form.listingType.length === 0) {
+      Alert.alert('Fehler', 'Bitte mindestens einen Tag auswählen.');
+      return;
+    }
 
-    // Hilfsfunktion für Mapping von Tags zu listingType
-    const tagMap = {
-      Walks: 'walks',
-      Daycare: 'day-care',
-      Feeding: 'feeding',
-      Training: 'house-sitting', // Passe ggf. an!
-      Overnight: 'overnight',
-    };
+    // Validierung: species muss Enum sein
+    const allowedSpecies = ['dog', 'cat', 'bird', 'exotic', 'other'];
+    if (!allowedSpecies.includes(form.species)) {
+      Alert.alert('Fehler', 'Ungültige Tierart.');
+      return;
+    }
+
+    // Validierung: Datum im ISO8601-Format
+    const isISODate = (str) => /^\d{4}-\d{2}-\d{2}/.test(str);
+    if (!isISODate(form.startDate) || !isISODate(form.endDate)) {
+      Alert.alert('Fehler', 'Bitte gültige Start- und Enddaten im Format YYYY-MM-DD eingeben.');
+      return;
+    }
 
     const payload = {
       ownerId: userInfo.userId,
       title: form.title,
       description: form.description,
-      species: animalTypeMap[form.animalTypes] || 'other',
-      listingType: form.tags.map((tag) => tagMap[tag] || tag.toLowerCase()),
-      startDate: form.startDate || new Date().toISOString(), // Passe ggf. an!
-      endDate: form.endDate || new Date(Date.now() + 86400000).toISOString(), // Passe ggf. an!
-      sitterVerified: false, // Passe ggf. an!
-      price: Number(form.price) || 0, // Passe ggf. an!
-      breed: form.breed,
+      species: form.species,
+      listingType: form.listingType,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      sitterVerified: !!form.sitterVerified,
+      price: Number(form.price),
+      breed: form.breed || undefined,
       age: form.age ? Number(form.age) : undefined,
-      size: form.size,
-      feeding: form.feeding,
-      medication: form.medication,
+      size: form.size || undefined,
+      feeding: form.feeding || undefined,
+      medication: form.medication || undefined,
     };
 
     console.log('📤 Sende neues Listing:', payload);
@@ -119,13 +142,15 @@ export default function PostScreen() {
       setForm({
         title: '',
         description: '',
-        tags: [],
-        animalTypes: 'Dogs',
-        about: '',
+        species: 'dog',
+        listingType: [],
+        startDate: '',
+        endDate: '',
+        sitterVerified: false,
+        price: '',
         breed: '',
         age: '',
-        size: 'Medium',
-        exercise: '',
+        size: 'Mittel',
         feeding: '',
         medication: '',
       });
@@ -137,18 +162,23 @@ export default function PostScreen() {
     }
   };
 
+  // Hilfsfunktion für Formatierung
+  const formatDate = (date) =>
+    date ? new Date(date).toISOString().slice(0, 10) : '';
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Create New Listing</Text>
 
-      <Input label="Title" value={form.title} onChangeText={(val) => handleChange('title', val)} />
-      <Input label="Description" value={form.description} onChangeText={(val) => handleChange('description', val)} />
+      <Input label="Title *" value={form.title} onChangeText={(val) => handleChange('title', val)} />
+      <Input label="Description *" value={form.description} onChangeText={(val) => handleChange('description', val)} />
 
       <Dropdown
-        label="Animal Type"
-        selected={form.animalTypes}
-        options={animalTypeOptions}
-        onChange={(val) => handleChange('animalTypes', val)}
+        label="Animal Type *"
+        selected={form.species}
+        options={animalTypeOptions.map(opt => opt.value)}
+        optionLabels={animalTypeOptions.map(opt => opt.label)}
+        onChange={(val) => handleChange('species', val)}
       />
 
       <Dropdown
@@ -159,36 +189,139 @@ export default function PostScreen() {
       />
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Tags</Text>
+        <Text style={styles.label}>Tags *</Text>
         <View style={styles.tagContainer}>
           {tagOptions.map((tag) => (
             <TouchableOpacity
-              key={tag}
-              style={[styles.tag, form.tags.includes(tag) && styles.tagSelected]}
-              onPress={() => toggleTag(tag)}
+              key={tag.value}
+              style={[styles.tag, form.listingType.includes(tag.value) && styles.tagSelected]}
+              onPress={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  listingType: prev.listingType.includes(tag.value)
+                    ? prev.listingType.filter((t) => t !== tag.value)
+                    : [...prev.listingType, tag.value],
+                }))
+              }
             >
               <Text
                 style={[
                   styles.tagText,
-                  form.tags.includes(tag) && styles.tagTextSelected,
+                  form.listingType.includes(tag.value) && styles.tagTextSelected,
                 ]}
               >
-                {tag}
+                {tag.label}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
-      <Input label="About" multiline value={form.about} onChangeText={(val) => handleChange('about', val)} />
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Start Date *</Text>
+        {Platform.OS === 'web' ? (
+          <input
+            style={{
+              ...styles.input,
+              width: '100%',
+              boxSizing: 'border-box',
+              fontSize: 14,
+              padding: 10,
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              background: '#f9f9f9',
+              marginBottom: 14,
+            }}
+            type="date"
+            value={form.startDate}
+            onChange={e => handleChange('startDate', e.target.value)}
+          />
+        ) : (
+          <>
+            <TouchableOpacity
+              style={styles.input}
+              onPress={() => setShowStartPicker(true)}
+            >
+              <Text>{form.startDate ? formatDate(form.startDate) : 'Datum wählen'}</Text>
+            </TouchableOpacity>
+            {showStartPicker && (
+              <DateTimePicker
+                value={form.startDate ? new Date(form.startDate) : new Date()}
+                mode="date"
+                display="default"
+                onChange={(_, selectedDate) => {
+                  setShowStartPicker(false);
+                  if (selectedDate) {
+                    handleChange('startDate', formatDate(selectedDate));
+                  }
+                }}
+              />
+            )}
+          </>
+        )}
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>End Date *</Text>
+        {Platform.OS === 'web' ? (
+          <input
+            style={{
+              ...styles.input,
+              width: '100%',
+              boxSizing: 'border-box',
+              fontSize: 14,
+              padding: 10,
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              background: '#f9f9f9',
+              marginBottom: 14,
+            }}
+            type="date"
+            value={form.endDate}
+            onChange={e => handleChange('endDate', e.target.value)}
+          />
+        ) : (
+          <>
+            <TouchableOpacity
+              style={styles.input}
+              onPress={() => setShowEndPicker(true)}
+            >
+              <Text>{form.endDate ? formatDate(form.endDate) : 'Datum wählen'}</Text>
+            </TouchableOpacity>
+            {showEndPicker && (
+              <DateTimePicker
+                value={form.endDate ? new Date(form.endDate) : new Date()}
+                mode="date"
+                display="default"
+                onChange={(_, selectedDate) => {
+                  setShowEndPicker(false);
+                  if (selectedDate) {
+                    handleChange('endDate', formatDate(selectedDate));
+                  }
+                }}
+              />
+            )}
+          </>
+        )}
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Sitter Verified *</Text>
+        <TouchableOpacity
+          style={[styles.tag, form.sitterVerified && styles.tagSelected]}
+          onPress={() => handleChange('sitterVerified', !form.sitterVerified)}
+        >
+          <Text style={[styles.tagText, form.sitterVerified && styles.tagTextSelected]}>
+            {form.sitterVerified ? 'Ja' : 'Nein'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <Input label="Price (€) *" value={form.price} onChangeText={(val) => handleChange('price', val)} />
       <Input label="Breed" value={form.breed} onChangeText={(val) => handleChange('breed', val)} />
       <Input label="Age" value={form.age} onChangeText={(val) => handleChange('age', val)} />
-      <Input label="Exercise" value={form.exercise} onChangeText={(val) => handleChange('exercise', val)} />
       <Input label="Feeding" value={form.feeding} onChangeText={(val) => handleChange('feeding', val)} />
       <Input label="Medication" value={form.medication} onChangeText={(val) => handleChange('medication', val)} />
-
-      <Text style={styles.imagePreviewNote}>📸 Image Preview for {form.animalTypes}:</Text>
-      <Text style={styles.imageURL}>{getImageForAnimal()}</Text>
 
       <TouchableOpacity
         style={[styles.button, isSubmitting && { opacity: 0.6 }]}
@@ -215,7 +348,7 @@ function Input({ label, value, onChangeText, multiline = false }) {
   );
 }
 
-function Dropdown({ label, selected, options, onChange }) {
+function Dropdown({ label, selected, options, optionLabels, onChange }) {
   return (
     <View style={styles.inputGroup}>
       <Text style={styles.label}>{label}</Text>
@@ -225,8 +358,12 @@ function Dropdown({ label, selected, options, onChange }) {
           onValueChange={(itemValue) => onChange(itemValue)}
           style={Platform.OS === 'ios' ? styles.pickerIOS : undefined}
         >
-          {options.map((opt) => (
-            <Picker.Item label={opt} value={opt} key={opt} />
+          {options.map((opt, index) => (
+            <Picker.Item
+              label={optionLabels?.[index] ?? String(opt)}
+              value={opt}
+              key={opt}
+            />
           ))}
         </Picker>
       </View>

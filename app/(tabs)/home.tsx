@@ -15,15 +15,6 @@ import { getAnimalImageUrl } from '../../data/dummyURL';
 const BASE_URL = 'http://localhost:3000/api/v1';
 
 function mapBackendListingsWithImages(listings) {
-  // Zähler für jede Tierart, damit jedes Bild nur einmal verwendet wird
-  const imageCounters = {
-    Dogs: 0,
-    Cats: 0,
-    Birds: 0,
-    Exotic: 0,
-    Other: 0,
-  };
-
   const tagMap = {
     'house-sitting': 'House Sitting',
     'drop-in-visit': 'Drop-in Visit',
@@ -35,6 +26,7 @@ function mapBackendListingsWithImages(listings) {
   };
 
   return listings.map((listing) => {
+    // Tierart ins Dummy-Format bringen
     let animalType =
       listing.species === 'dog'
         ? 'Dogs'
@@ -46,7 +38,7 @@ function mapBackendListingsWithImages(listings) {
         ? 'Exotic'
         : 'Other';
 
-    // Bild anhand der ID zuweisen
+    // Bild anhand der ID generieren (immer gleich für jede ID)
     const image = getAnimalImageUrl(animalType, listing.id);
 
     return {
