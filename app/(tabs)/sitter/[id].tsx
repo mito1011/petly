@@ -45,6 +45,11 @@ export default function SitterProfile() {
           <Text style={styles.about}>{sitter.about}</Text>
         </>
       )}
+      <Text style={styles.sectionTitle}>Experience</Text>
+      <>
+          <Text style={styles.stat}>Completed Jobs: {sitter.completedJobs}</Text>
+          <Text style={styles.stat}>Repeat Clients: {sitter.repeatClients}</Text>
+      </>
     </ScrollView>
   );
 }
@@ -74,4 +79,9 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  stat: {
+    fontSize: 14,
+    color: '#333',
+    marginVertical: 2,
+  }
 });
